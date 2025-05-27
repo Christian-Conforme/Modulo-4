@@ -30,21 +30,35 @@ async def crear_empleado(data: EmpleadoCreate, db: AsyncSession = Depends(get_db
     return await create_empleado(db, data)
 
 @router.put("/{empleado_id}", response_model=EmpleadoOut)
-async def actualizar_empleado(empleado_id: int, data: EmpleadoCreate, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
+async def actualizar_empleado(
+    empleado_id: int,
+    data: EmpleadoCreate,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user)
+):
     result = await db.execute(select(Empleado).where(Empleado.id_empleado == empleado_id))
     empleado = result.scalars().first()
     if not empleado:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
-    # Aquí deberías implementar la lógica real de actualización en la base de datos
-    # Por ahora solo retorna el encontrado
+    # Actualiza los campos
+    empleado.nombre = data.nombre  # type: ignore
+    empleado.cargo = data.cargo    # type: ignore
+    empleado.correo = data.correo  # type: ignore
+    empleado.telefono = data.telefono  # type: ignore
+    await db.commit()
+    await db.refresh(empleado)
     return empleado
 
 @router.delete("/{empleado_id}", response_model=EmpleadoOut)
-async def eliminar_empleado(empleado_id: int, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
+async def eliminar_empleado(
+    empleado_id: int,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user)
+):
     result = await db.execute(select(Empleado).where(Empleado.id_empleado == empleado_id))
     empleado = result.scalars().first()
     if not empleado:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
-    # Aquí deberías implementar la lógica real de eliminación en la base de datos
-    # Por ahora solo retorna el encontrado
+    await db.delete(empleado)
+    await db.commit()
     return empleado
