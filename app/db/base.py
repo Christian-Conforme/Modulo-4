@@ -8,7 +8,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL no está definida en el entorno")
 
-engine = create_async_engine(DATABASE_URL, echo=True, connect_args={"ssl": True})
+engine = create_async_engine(DATABASE_URL, echo=False, connect_args={"ssl": True}) # cambiar a True  para primera vez que se ejecute el proyecto el echo=True para ver las consultas SQL 
 SessionLocal = async_sessionmaker(
     engine,  
     class_=AsyncSession,

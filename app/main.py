@@ -1,11 +1,18 @@
-import logging
-logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
-logging.basicConfig()
+
 from fastapi import FastAPI
 from app.api.api import api_router
 from app.db.base import init_db
 import uvicorn
+import logging
 
+for logger_name in [
+    "sqlalchemy.engine",
+    "sqlalchemy.pool",
+    "sqlalchemy.dialects",
+    "sqlalchemy.orm"
+]:
+    logging.getLogger(logger_name).setLevel(logging.CRITICAL)
+    logging.getLogger(logger_name).propagate = False
 app = FastAPI(title="Administración Interna - Alquiler Autos")
 
 @app.on_event("startup")
