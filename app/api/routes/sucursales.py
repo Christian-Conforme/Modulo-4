@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.base import SessionLocal
+from app.db.base import get_db 
+from app.schemas.mensaje import MensajeOut
 from app.schemas.sucursal import SucursalCreate, SucursalOut
 from app.services.sucursal import (
     get_sucursales,
@@ -12,10 +13,6 @@ from app.services.sucursal import (
 from app.api.routes.auth import get_current_user
 
 router = APIRouter()
-
-async def get_db():
-    async with SessionLocal() as session:
-        yield session
 
 @router.get("/", response_model=list[SucursalOut])
 async def listar_sucursales(db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
@@ -36,6 +33,6 @@ async def crear_sucursal(data: SucursalCreate, db: AsyncSession = Depends(get_db
 async def actualizar_sucursal(sucursal_id: int, data: SucursalCreate, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     return await update_sucursal(db, sucursal_id, data)
 
-@router.delete("/{sucursal_id}", response_model=SucursalOut)
-async def eliminar_sucursal(sucursal_id: int, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
+@router.delete("/{sucursal_id}", response_model=MensajeOut)
+async def eliminar_sucursal(sucursal_id: int,db: AsyncSession = Depends(get_db),user=Depends(get_current_user)):
     return await delete_sucursal(db, sucursal_id)

@@ -7,7 +7,6 @@ from app.schemas.rol import RolCreate
 async def get_roles(db: AsyncSession):
     result = await db.execute(select(Rol))
     return result.scalars().all()
-
 async def get_rol_by_id(db: AsyncSession, rol_id: int):
     result = await db.execute(select(Rol).where(Rol.id_rol == rol_id))
     return result.scalars().first()
@@ -28,10 +27,11 @@ async def update_rol(db: AsyncSession, rol_id: int, data: RolCreate):
     await db.refresh(rol)
     return rol
 
-async def delete_rol(db: AsyncSession, rol_id: int):
+async def delete_rol(db: AsyncSession, rol_id: int) -> dict:
     rol = await get_rol_by_id(db, rol_id)
     if not rol:
         raise HTTPException(status_code=404, detail="Rol no encontrado")
+    nombre = rol.nombre  
     await db.delete(rol)
     await db.commit()
-    return rol
+    return {"mensaje": f"Rol '{nombre}' eliminado correctamente"}

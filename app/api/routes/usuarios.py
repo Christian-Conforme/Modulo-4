@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.base import SessionLocal
+from app.db.base import get_db
+from app.schemas.mensaje import MensajeOut
 from app.schemas.usuario import UsuarioCreate, UsuarioOut
 from app.services.usuario import (
     get_usuarios,
@@ -12,11 +13,6 @@ from app.services.usuario import (
 from app.api.routes.auth import get_current_user
 
 router = APIRouter()
-
-async def get_db():
-    async with SessionLocal() as session:
-        yield session
-
 @router.get("/", response_model=list[UsuarioOut])
 async def listar_usuarios(db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     return await get_usuarios(db)
@@ -36,6 +32,10 @@ async def crear_usuario(data: UsuarioCreate, db: AsyncSession = Depends(get_db),
 async def actualizar_usuario(usuario_id: int, data: UsuarioCreate, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     return await update_usuario(db, usuario_id, data)
 
-@router.delete("/{usuario_id}", response_model=UsuarioOut)
-async def eliminar_usuario(usuario_id: int, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
+@router.delete("/{usuario_id}", response_model=MensajeOut) 
+async def eliminar_usuario(
+    usuario_id: int,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user)
+):
     return await delete_usuario(db, usuario_id)

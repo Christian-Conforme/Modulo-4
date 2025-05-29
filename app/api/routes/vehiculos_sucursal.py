@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.base import SessionLocal
+from app.db.base import get_db
 from app.schemas.vehiculo_sucursal import VehiculoSucursalCreate, VehiculoSucursalOut
 from app.services.vehiculo_sucursal import (
     get_vehiculos_sucursal,
@@ -10,13 +10,7 @@ from app.services.vehiculo_sucursal import (
     delete_vehiculo_sucursal,
 )
 from app.api.routes.auth import get_current_user
-
 router = APIRouter()
-
-async def get_db():
-    async with SessionLocal() as session:
-        yield session
-
 @router.get("/", response_model=list[VehiculoSucursalOut])
 async def listar_vehiculos_sucursal(db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     return await get_vehiculos_sucursal(db)

@@ -31,10 +31,12 @@ async def update_sucursal(db: AsyncSession, sucursal_id: int, data: SucursalCrea
     await db.refresh(sucursal)
     return sucursal
 
-async def delete_sucursal(db: AsyncSession, sucursal_id: int):
+async def delete_sucursal(db: AsyncSession, sucursal_id: int) -> dict:
     sucursal = await get_sucursal_by_id(db, sucursal_id)
     if not sucursal:
         raise HTTPException(status_code=404, detail="Sucursal no encontrada")
+    nombre = sucursal.nombre  
     await db.delete(sucursal)
     await db.commit()
-    return sucursal
+    return {"mensaje": f"Sucursal '{nombre}' eliminada correctamente"}
+

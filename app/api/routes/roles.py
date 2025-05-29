@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.base import SessionLocal
+from app.db.base import get_db  
+from app.schemas.mensaje import MensajeOut
 from app.schemas.rol import RolCreate, RolOut
 from app.services.rol import (
     get_roles,
@@ -13,9 +14,6 @@ from app.api.routes.auth import get_current_user
 
 router = APIRouter()
 
-async def get_db():
-    async with SessionLocal() as session:
-        yield session
 
 @router.get("/", response_model=list[RolOut])
 async def listar_roles(db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
@@ -35,7 +33,10 @@ async def crear_rol(data: RolCreate, db: AsyncSession = Depends(get_db), user=De
 @router.put("/{rol_id}", response_model=RolOut)
 async def actualizar_rol(rol_id: int, data: RolCreate, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
     return await update_rol(db, rol_id, data)
-
-@router.delete("/{rol_id}", response_model=RolOut)
-async def eliminar_rol(rol_id: int, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
+@router.delete("/{rol_id}", response_model=MensajeOut)
+async def eliminar_rol(
+    rol_id: int,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user)
+):
     return await delete_rol(db, rol_id)
