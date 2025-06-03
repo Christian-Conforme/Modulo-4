@@ -18,13 +18,9 @@ Base = declarative_base()
 
 async def init_db():
     async with engine.begin() as conn:
-        import app.db.models.empleado
-        import app.db.models.sucursal
-        import app.db.models.vehiculo
-        import app.db.models.vehiculo_sucursal
-        import app.db.models.rol
-        import app.db.models.usuario
+        import app.db.models 
         await conn.run_sync(Base.metadata.create_all)
+
 async def get_db():
     db = SessionLocal()
     try:

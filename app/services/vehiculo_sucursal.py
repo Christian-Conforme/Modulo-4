@@ -48,7 +48,7 @@ async def update_vehiculo_sucursal(db: AsyncSession, id_relacion: int, data: Veh
     await db.refresh(relacion)
     return relacion
 
-async def delete_vehiculo_sucursal(db: AsyncSession, id_relacion: int):
+async def delete_vehiculo_sucursal(db: AsyncSession, id_relacion: int) -> dict:
     relacion = await get_vehiculo_sucursal_by_id(db, id_relacion)
     if not relacion:
         raise HTTPException(status_code=404, detail="Vehiculo de Sucursal no encontrado")
