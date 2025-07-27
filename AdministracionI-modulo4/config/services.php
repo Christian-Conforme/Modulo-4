@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'websocket' => [
+        'url' => env('WEBSOCKET_SERVICE_URL', 'http://localhost:3001'),
+        'timeout' => env('WEBSOCKET_TIMEOUT', 3),
+        'enabled' => env('WEBSOCKET_ENABLED', true),
+    ],
+
 ];

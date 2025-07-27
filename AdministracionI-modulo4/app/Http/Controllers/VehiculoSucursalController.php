@@ -3,11 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\VehiculoSucursal;
+use App\Models\Vehiculo;
+use App\Models\Sucursal;
 use App\Http\Requests\StoreVehiculoSucursalRequest;
 use App\Http\Requests\UpdateVehiculoSucursalRequest;
+use App\Services\NotificationService;
 
 class VehiculoSucursalController extends Controller
 {
+    private NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Listar todas las relaciones vehículo-sucursal.
      *
@@ -50,7 +59,27 @@ class VehiculoSucursalController extends Controller
      */
     public function store(StoreVehiculoSucursalRequest $request)
     {
-        $relacion = VehiculoSucursal::create($request->validated());
+        // Mapear los campos del request a los nombres esperados por el modelo
+        $validatedData = $request->validated();
+        $modelData = [
+            'id_vehiculo' => $validatedData['vehiculo_id'],
+            'id_sucursal' => $validatedData['sucursal_id'],
+            'fecha_asignacion' => $validatedData['fecha_asignacion'] ?? now()
+        ];
+        
+        $relacion = VehiculoSucursal::create($modelData);
+        
+        // Obtener datos del vehículo y sucursal para la notificación
+        $vehiculo = Vehiculo::find($relacion->id_vehiculo);
+        $sucursal = Sucursal::find($relacion->id_sucursal);
+        
+        // Enviar notificación
+        $this->notificationService->vehiculoAsignado(
+            $relacion->toArray(),
+            $vehiculo ? $vehiculo->toArray() : [],
+            $sucursal ? $sucursal->toArray() : []
+        );
+        
         return response()->json($relacion, 201);
     }
 
@@ -107,7 +136,23 @@ class VehiculoSucursalController extends Controller
      */
     public function update(UpdateVehiculoSucursalRequest $request, VehiculoSucursal $vehiculoSucursal)
     {
-        $vehiculoSucursal->update($request->validated());
+        // Mapear los campos del request a los nombres esperados por el modelo
+        $validatedData = $request->validated();
+        $modelData = [];
+        
+        if (isset($validatedData['vehiculo_id'])) {
+            $modelData['id_vehiculo'] = $validatedData['vehiculo_id'];
+        }
+        
+        if (isset($validatedData['sucursal_id'])) {
+            $modelData['id_sucursal'] = $validatedData['sucursal_id'];
+        }
+        
+        if (isset($validatedData['fecha_asignacion'])) {
+            $modelData['fecha_asignacion'] = $validatedData['fecha_asignacion'];
+        }
+        
+        $vehiculoSucursal->update($modelData);
         return response()->json([
             'message' => 'Vehiculo con Sucursal actualizado',
             'vehiculo_sucursal' => $vehiculoSucursal
@@ -127,7 +172,21 @@ class VehiculoSucursalController extends Controller
      */
     public function destroy(VehiculoSucursal $vehiculoSucursal)
     {
+        $asignacionId = $vehiculoSucursal->id;
+        
+        // Obtener datos del vehículo y sucursal para la notificación
+        $vehiculo = Vehiculo::find($vehiculoSucursal->id_vehiculo);
+        $sucursal = Sucursal::find($vehiculoSucursal->id_sucursal);
+        
         $vehiculoSucursal->delete();
+        
+        // Enviar notificación
+        $this->notificationService->vehiculoDesasignado(
+            $asignacionId,
+            $vehiculo ? $vehiculo->toArray() : [],
+            $sucursal ? $sucursal->toArray() : []
+        );
+        
         return response()->json([
             'message' => 'Vehiculo con Sucursal eliminado'
         ], 200);

@@ -10,9 +10,9 @@ class VehiculoSucursalFactory extends Factory
     public function definition(): array
     {
         return [
-            'vehiculo_id' => Vehiculo::factory(),
-            'sucursal_id' => Sucursal::factory(),
-            'fecha_ingreso' => $this->faker->date(),
+            'id_vehiculo' => Vehiculo::factory(),
+            'id_sucursal' => Sucursal::factory(),
+            'fecha_asignacion' => $this->faker->dateTimeBetween('-2 years', 'now'),
         ];
     }
 }

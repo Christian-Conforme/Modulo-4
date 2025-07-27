@@ -5,9 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Vehiculo;
 use App\Http\Requests\StoreVehiculoRequest;
 use App\Http\Requests\UpdateVehiculoRequest;
+use App\Services\NotificationService;
 
 class VehiculoController extends Controller
 {
+    private NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Listar todos los vehículos.
      *
@@ -60,6 +67,10 @@ class VehiculoController extends Controller
     public function store(StoreVehiculoRequest $request)
     {
         $vehiculo = Vehiculo::create($request->validated());
+        
+        // Enviar notificación
+        $this->notificationService->vehiculoCreado($vehiculo->toArray());
+        
         return response()->json($vehiculo, 201);
     }
 
@@ -125,7 +136,26 @@ class VehiculoController extends Controller
      */
     public function update(UpdateVehiculoRequest $request, Vehiculo $vehiculo)
     {
+        $datosOriginales = $vehiculo->toArray();
+        $estadoAnterior = $vehiculo->estado;
+        
         $vehiculo->update($request->validated());
+        
+        // Calcular cambios
+        $cambios = array_diff_assoc($request->validated(), $datosOriginales);
+        
+        // Si cambió el estado, enviar notificación específica
+        if (isset($cambios['estado'])) {
+            $this->notificationService->vehiculoEstadoCambiado(
+                $vehiculo->toArray(), 
+                $estadoAnterior, 
+                $vehiculo->estado
+            );
+        } else {
+            // Enviar notificación general de actualización
+            $this->notificationService->vehiculoActualizado($vehiculo->toArray(), $cambios);
+        }
+        
         return response()->json($vehiculo);
     }
 
@@ -142,7 +172,14 @@ class VehiculoController extends Controller
      */
     public function destroy(Vehiculo $vehiculo)
     {
+        $vehiculoId = $vehiculo->id_vehiculo;
+        $vehiculoPlaca = $vehiculo->placa;
+        
         $vehiculo->delete();
+        
+        // Enviar notificación
+        $this->notificationService->vehiculoEliminado($vehiculoId, $vehiculoPlaca);
+        
         return response()->json(null, 204);
     }
 }

@@ -29,5 +29,13 @@ class Empleado extends Model
     protected $primaryKey = 'id_empleado';
     public $incrementing = true;
     protected $fillable = ['nombre', 'cargo', 'correo', 'telefono'];
-    public $timestamps = false; // Desactiva los timestamps si no los necesitas
+    public $timestamps = true;
+
+    /**
+     * Relación con User (Un empleado puede tener un usuario)
+     */
+    public function user()
+    {
+        return $this->hasOne(User::class, 'empleado_id', 'id_empleado');
+    }
 }

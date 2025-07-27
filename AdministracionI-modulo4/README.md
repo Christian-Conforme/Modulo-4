@@ -1,61 +1,205 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚗 Sistema de Administración de Vehículos y Empleados
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 🎯 Proyecto Final - Microservicios con Laravel 12
 
-## About Laravel
+Este proyecto implementa una **arquitectura completa en PHP** usando **Laravel 12** con:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **🔗 GraphQL Gateway** (Lighthouse PHP) como punto único de entrada
+- **📡 WebSockets en tiempo real** (Laravel Reverb nativo)
+- **📊 Dashboard interactivo** con gráficos en tiempo real
+- **🏗️ Arquitectura de microservicios** completamente en PHP
+- **🔄 Sistema de eventos** para actualizaciones automáticas
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✅ Características Implementadas
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🔗 GraphQL Gateway (Lighthouse PHP)
 
-## Learning Laravel
+- **Endpoint único**: `/graphql` para todas las operaciones
+- **Schema completo** con tipos para Empleados, Vehículos, Sucursales, Usuarios y Asignaciones
+- **Consultas optimizadas** con relaciones Eloquent
+- **Validación automática** de datos de entrada
+- **GraphiQL Playground** disponible en `/graphiql`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 📡 WebSockets en Tiempo Real (Laravel Reverb)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **Servidor WebSocket nativo** de Laravel en puerto 8080
+- **Eventos automáticos** para operaciones CRUD
+- **Canales específicos** por tipo de entidad
+- **Reconexión automática** con manejo de errores
+- **Broadcasting** configurado con Pusher Protocol
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 📊 Dashboard Interactivo
 
-## Laravel Sponsors
+- **🎯 Tabla principal**: Asignaciones Vehículo-Sucursal
+- **📈 Gráficos en tiempo real** con Chart.js
+- **📊 Estadísticas actualizadas** cada 15 segundos
+- **🔔 Feed de actividad** en tiempo real
+- **🎨 Interfaz responsive** con Bootstrap 5
+- **🧭 Navegación suave** entre secciones
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🏗️ Arquitectura del Sistema
 
-### Premium Partners
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                     CLIENTE (Navegador)                    │
+│                                                             │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │   Dashboard     │  │   GraphQL       │  │  WebSocket  │ │
+│  │   Principal     │  │   Queries       │  │   Cliente   │ │
+│  │  (Bootstrap)    │  │   (Fetch API)   │  │  (Pusher)   │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 SERVIDOR LARAVEL 12                        │
+│                     Puerto: 8000                           │
+│                                                             │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │   GraphQL       │  │   WebSocket     │  │  Dashboard  │ │
+│  │   Lighthouse    │  │   Reverb        │  │   Routes    │ │
+│  │   /graphql      │  │   Puerto: 8080  │  │   Blade     │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │                    MODELOS ELOQUENT                    │ │
+│  │  Empleado • Vehiculo • Sucursal • User • VehiculoSucursal │
+│  └─────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 BASE DE DATOS POSTGRESQL                   │
+│                                                             │
+│  empleado • vehiculo • sucursal • users • vehiculo_sucursal │
+└─────────────────────────────────────────────────────────────┘
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 🚀 Instalación y Uso
 
-## Contributing
+### 1. Comando Único para Todo
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan project:start
+```
 
-## Code of Conduct
+### 2. Iniciar Servicios Manualmente
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**Terminal 1 - WebSocket Server:**
 
-## Security Vulnerabilities
+```bash
+php artisan reverb:start
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Terminal 2 - Laravel Server:**
 
-## License
+```bash
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🌐 URLs de Acceso
+
+| Servicio | URL | Descripción |
+|----------|-----|-------------|
+| 🏠 **Dashboard Principal** | <http://127.0.0.1:8000/dashboard> | **Dashboard completo funcional** |
+| 🔗 GraphQL Endpoint | <http://127.0.0.1:8000/graphql> | API GraphQL |
+| 🎮 GraphQL Playground | <http://127.0.0.1:8000/graphiql> | Explorador GraphQL |
+| 📡 WebSocket Server | ws://127.0.0.1:8080 | Servidor WebSocket |
+| 🧪 Test Dashboard | <http://127.0.0.1:8000/test-dashboard> | Pruebas GraphQL |
+
+## 📊 Datos del Sistema
+
+| Entidad | Cantidad | Descripción |
+|---------|----------|-------------|
+| 👥 Empleados | 1 | Empleados registrados |
+| 🚗 Vehículos | 5 | Inventario de vehículos |
+| 🏢 Sucursales | 3 | Oficinas/sucursales |
+| 👤 Usuarios | 1 | Usuarios del sistema |
+| 🔗 **Asignaciones** | **8** | **Tabla principal** |
+| 🎭 Roles | 1 | Roles de usuario |
+
+## 📈 Ejemplos de Consultas GraphQL
+
+### Estadísticas Generales
+
+```graphql
+query {
+  estadisticas {
+    totalEmpleados
+    totalVehiculos
+    totalSucursales
+    totalUsuarios
+  }
+}
+```
+
+### Asignaciones (Tabla Principal)
+
+```graphql
+query {
+  vehiculoSucursales {
+    id
+    vehiculo {
+      placa
+      marca
+      modelo
+    }
+    sucursal {
+      nombre
+      ciudad
+    }
+    fecha_asignacion
+  }
+}
+```
+
+### Empleados Completos
+
+```graphql
+query {
+  empleados {
+    id_empleado
+    nombre
+    correo
+    telefono
+    cargo
+  }
+}
+```
+
+## 🔔 Eventos WebSocket en Tiempo Real
+
+- `vehiculo_sucursal.asignado` - Nueva asignación vehículo-sucursal
+- `vehiculo_sucursal.actualizado` - Asignación modificada
+- `empleado.creado` - Nuevo empleado registrado
+- `vehiculo.estado_cambiado` - Cambio de estado de vehículo
+
+## 🧪 Comandos de Prueba
+
+### Generar Eventos de Prueba
+
+```bash
+php artisan test:websocket-events --count=5
+```
+
+### Generar Asignaciones de Prueba
+
+```bash
+php artisan test:asignaciones --count=3
+```
+
+## 🔧 Tecnologías Utilizadas
+
+- **Framework**: Laravel 12
+- **Base de Datos**: PostgreSQL
+- **GraphQL**: Lighthouse PHP (nuwave/lighthouse ^6.62)
+- **WebSockets**: Laravel Reverb (laravel/reverb ^1.0)
+- **Frontend**: Blade + Bootstrap 5 + Chart.js
+- **Cliente WebSocket**: Pusher JS + Laravel Echo
+
+---
+
+**✅ Sistema Completamente Funcional** - Dashboard con actualizaciones en tiempo real  
+**🎯 Tabla Principal**: Asignaciones Vehículo-Sucursal  
+**📡 WebSockets**: Eventos en tiempo real configurados  
+**🔗 GraphQL**: API unificada funcionando perfectamente

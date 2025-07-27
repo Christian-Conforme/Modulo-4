@@ -9,14 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vehiculo_sucursal', function (Blueprint $table) {
-            $table->id('id_relacion');
-            $table->unsignedBigInteger('vehiculo_id');
-            $table->unsignedBigInteger('sucursal_id');
-            $table->date('fecha_ingreso')->nullable();
+            $table->id();
+            $table->unsignedBigInteger('id_vehiculo');
+            $table->unsignedBigInteger('id_sucursal');
+            $table->timestamp('fecha_asignacion')->nullable();
             $table->timestamps();
 
-            $table->foreign('vehiculo_id')->references('id_vehiculo')->on('vehiculo')->onDelete('cascade');
-            $table->foreign('sucursal_id')->references('id_sucursal')->on('sucursal')->onDelete('cascade');
+            // Foreign keys
+            $table->foreign('id_vehiculo')->references('id_vehiculo')->on('vehiculo')->onDelete('cascade');
+            $table->foreign('id_sucursal')->references('id_sucursal')->on('sucursal')->onDelete('cascade');
         });
     }
 

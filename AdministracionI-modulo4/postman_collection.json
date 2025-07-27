@@ -1,0 +1,366 @@
+{
+  "info": {
+    "name": "Laravel GraphQL + REST + WebSocket API",
+    "description": "Colección completa para testing de GraphQL, REST API y WebSockets",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "graphql_url",
+      "value": "{{base_url}}/graphql"
+    },
+    {
+      "key": "api_url",
+      "value": "{{base_url}}/api"
+    },
+    {
+      "key": "websocket_url",
+      "value": "ws://localhost:8000/ws"
+    }
+  ],
+  "item": [
+    {
+      "name": "GraphQL",
+      "item": [
+        {
+          "name": "1. Crear Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CrearUser($input: UserInput!) { crearUser(input: $input) { id_usuario empleado_id username rol_id created_at } }\",\n  \"variables\": {\n    \"input\": {\n      \"empleado_id\": 1,\n      \"username\": \"testuser_graphql\",\n      \"password\": \"password123\",\n      \"rol_id\": 1\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphql_url}}",
+              "host": ["{{graphql_url}}"]
+            }
+          }
+        },
+        {
+          "name": "2. Obtener Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query ObtenerUsuario($id: ID!) { user(id_usuario: $id) { id_usuario username empleado_id rol { nombre descripcion } empleado { nombre cargo correo } } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphql_url}}",
+              "host": ["{{graphql_url}}"]
+            }
+          }
+        },
+        {
+          "name": "3. Listar Usuarios",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { users { id_usuario username empleado_id rol { nombre } } }\"\n}"
+            },
+            "url": {
+              "raw": "{{graphql_url}}",
+              "host": ["{{graphql_url}}"]
+            }
+          }
+        },
+        {
+          "name": "4. Actualizar Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ActualizarUser($id: ID!, $input: UserInput!) { actualizarUser(id_usuario: $id, input: $input) { id_usuario username updated_at } }\",\n  \"variables\": {\n    \"id\": \"1\",\n    \"input\": {\n      \"empleado_id\": 1,\n      \"username\": \"usuario_actualizado_graphql\",\n      \"password\": \"newpassword123\",\n      \"rol_id\": 1\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphql_url}}",
+              "host": ["{{graphql_url}}"]
+            }
+          }
+        },
+        {
+          "name": "5. Eliminar Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation EliminarUser($id: ID!) { eliminarUser(id_usuario: $id) { success message } }\",\n  \"variables\": {\n    \"id\": \"1\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphql_url}}",
+              "host": ["{{graphql_url}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST API",
+      "item": [
+        {
+          "name": "1. Crear Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empleado_id\": 1,\n  \"username\": \"testuser_rest\",\n  \"password\": \"password123\",\n  \"rol_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{api_url}}/users",
+              "host": ["{{api_url}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "2. Listar Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_url}}/users",
+              "host": ["{{api_url}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "3. Obtener Usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_url}}/users/1",
+              "host": ["{{api_url}}"],
+              "path": ["users", "1"]
+            }
+          }
+        },
+        {
+          "name": "4. Actualizar Usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empleado_id\": 1,\n  \"username\": \"usuario_actualizado_rest\",\n  \"password\": \"newpassword123\",\n  \"rol_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{api_url}}/users/1",
+              "host": ["{{api_url}}"],
+              "path": ["users", "1"]
+            }
+          }
+        },
+        {
+          "name": "5. Eliminar Usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{api_url}}/users/1",
+              "host": ["{{api_url}}"],
+              "path": ["users", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Empleados GraphQL",
+      "item": [
+        {
+          "name": "Crear Empleado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CrearEmpleado($input: EmpleadoInput!) { crearEmpleado(input: $input) { id_empleado nombre cargo correo telefono created_at } }\",\n  \"variables\": {\n    \"input\": {\n      \"nombre\": \"Juan Pérez\",\n      \"cargo\": \"Desarrollador\",\n      \"correo\": \"juan@test.com\",\n      \"telefono\": \"123456789\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphql_url}}",
+              "host": ["{{graphql_url}}"]
+            }
+          }
+        },
+        {
+          "name": "Listar Empleados",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { empleados { id_empleado nombre cargo correo telefono } }\"\n}"
+            },
+            "url": {
+              "raw": "{{graphql_url}}",
+              "host": ["{{graphql_url}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vehículos GraphQL",
+      "item": [
+        {
+          "name": "Crear Vehículo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CrearVehiculo($input: VehiculoInput!) { crearVehiculo(input: $input) { id_vehiculo marca modelo anio kilometraje estado created_at } }\",\n  \"variables\": {\n    \"input\": {\n      \"marca\": \"Toyota\",\n      \"modelo\": \"Corolla\",\n      \"anio\": 2023,\n      \"kilometraje\": 5000,\n      \"estado\": \"disponible\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphql_url}}",
+              "host": ["{{graphql_url}}"]
+            }
+          }
+        },
+        {
+          "name": "Listar Vehículos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { vehiculos { id_vehiculo marca modelo anio kilometraje estado } }\"\n}"
+            },
+            "url": {
+              "raw": "{{graphql_url}}",
+              "host": ["{{graphql_url}}"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Script pre-request global",
+          "console.log('Ejecutando request a:', pm.request.url);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Tests globales",
+          "pm.test('Status code is 200', function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test('Response time is less than 1000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+          "});",
+          "",
+          "if (pm.response.headers.get('Content-Type').includes('application/json')) {",
+          "    pm.test('Response is valid JSON', function () {",
+          "        pm.response.to.be.json;",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

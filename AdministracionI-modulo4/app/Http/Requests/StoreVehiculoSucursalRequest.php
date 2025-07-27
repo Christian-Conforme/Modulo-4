@@ -16,9 +16,10 @@ class StoreVehiculoSucursalRequest extends FormRequest
         return [
             'vehiculo_id' => 'required|integer|exists:vehiculo,id_vehiculo',
             'sucursal_id' => 'required|integer|exists:sucursal,id_sucursal',
-            'fecha_ingreso' => 'required|date',
+            'fecha_asignacion' => 'nullable|date',
         ];
     }
+    
     public function messages(): array
     {
         return [
@@ -26,8 +27,7 @@ class StoreVehiculoSucursalRequest extends FormRequest
             'vehiculo_id.exists' => 'El vehículo seleccionado no existe.',
             'sucursal_id.required' => 'El ID de la sucursal es obligatorio.',
             'sucursal_id.exists' => 'La sucursal seleccionada no existe.',
-            'fecha_ingreso.required' => 'La fecha de ingreso es obligatoria.',
-            'fecha_ingreso.date' => 'La fecha de ingreso debe ser una fecha válida.',
+            'fecha_asignacion.date' => 'La fecha de asignación debe ser una fecha válida.',
         ];
     }
 }

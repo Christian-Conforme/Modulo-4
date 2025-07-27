@@ -9,18 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id('id_usuario');
-            $table->unsignedBigInteger('empleado_id')->nullable();
+            $table->id('id_usuario'); // Esto crea una columna 'id_usuario' BIGSERIAL PRIMARY KEY
+            $table->unsignedBigInteger('empleado_id');
             $table->string('username')->unique();
             $table->string('password');
-            $table->unsignedBigInteger('rol_id')->nullable();
-            $table->string('name')->nullable(); // <-- Agregado
-            $table->string('email')->unique()->nullable(); // <-- Agregado
-            $table->rememberToken();
+            $table->unsignedBigInteger('rol_id');
             $table->timestamps();
 
-            $table->foreign('empleado_id')->references('id_empleado')->on('empleado')->onDelete('set null');
-            $table->foreign('rol_id')->references('id_rol')->on('rol')->onDelete('set null');
+            $table->foreign('empleado_id')->references('id_empleado')->on('empleado')->onDelete('cascade');
+            $table->foreign('rol_id')->references('id_rol')->on('rol')->onDelete('cascade');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

@@ -19,7 +19,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @example {
  *   "id_usuario": 1,
  *   "empleado_id": 1,
- *   "username": "usuario123",
+ *   "username": "juanperez",
  *   "password": "********",
  *   "rol_id": 2
  * }
@@ -35,7 +35,7 @@ class User extends Authenticatable
         'empleado_id',
         'username',
         'password',
-        'rol_id',
+        'rol_id'
     ];
 
     protected $hidden = [
@@ -44,6 +44,23 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
+        'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Relación con Rol
+     */
+    public function rol()
+    {
+        return $this->belongsTo(Rol::class, 'rol_id', 'id_rol');
+    }
+
+    /**
+     * Relación con Empleado
+     */
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id_empleado');
+    }
 }

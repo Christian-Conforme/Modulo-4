@@ -14,12 +14,12 @@ class UserTest extends TestCase
 
     public function test_crear_usuario()
     {
-        $empleado = Empleado::factory()->create();
         $rol = Rol::factory()->create();
+        $empleado = \App\Models\Empleado::factory()->create();
 
         $data = [
             'empleado_id' => $empleado->id_empleado,
-            'username' => 'admin',
+            'username' => 'admin_user',
             'rol_id' => $rol->id_rol,
             'password' => 'secret123'
         ];
@@ -28,26 +28,26 @@ class UserTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonFragment([
-                'username' => 'admin',
                 'empleado_id' => $empleado->id_empleado,
+                'username' => 'admin_user',
                 'rol_id' => $rol->id_rol
             ]);
     }
 
     public function test_login_usuario()
     {
-        $empleado = Empleado::factory()->create();
         $rol = Rol::factory()->create();
+        $empleado = \App\Models\Empleado::factory()->create();
 
         $user = User::factory()->create([
             'empleado_id' => $empleado->id_empleado,
-            'username' => 'admin',
+            'username' => 'admin_user',
             'rol_id' => $rol->id_rol,
             'password' => bcrypt('secret123')
         ]);
 
         $data = [
-            'username' => 'admin',
+            'username' => 'admin_user',
             'password' => 'secret123'
         ];
 

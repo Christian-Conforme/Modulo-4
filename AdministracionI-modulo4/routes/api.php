@@ -7,9 +7,40 @@ use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\VehiculoSucursalController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\RabbitMQTestController;
+use App\Http\Controllers\Api\SystemTestController;
+use App\Services\NotificationService;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// ===== RUTAS PARA POSTMAN - TESTING =====
+
+// RabbitMQ Testing Routes
+Route::prefix('rabbitmq')->group(function () {
+    Route::get('health', [RabbitMQTestController::class, 'healthCheck']);
+    Route::post('publish', [RabbitMQTestController::class, 'publishEvent']);
+    Route::post('publish-batch', [RabbitMQTestController::class, 'publishBatchEvents']);
+    Route::get('stats', [RabbitMQTestController::class, 'getQueueStats']);
+    Route::get('test-full', [RabbitMQTestController::class, 'fullSystemTest']);
+});
+
+// System Testing Routes
+Route::prefix('test')->group(function () {
+    Route::post('create-empleado-with-event', [SystemTestController::class, 'createEmpleadoWithEvent']);
+    Route::post('create-vehiculo-assign-with-events', [SystemTestController::class, 'createVehiculoAssignWithEvents']);
+    Route::post('run-artisan', [SystemTestController::class, 'runArtisanCommand']);
+});
+
+// Dashboard API Routes
+Route::prefix('dashboard')->group(function () {
+    Route::get('data', [SystemTestController::class, 'getDashboardData']);
+});
+
+// System Info
+Route::get('system/info', [SystemTestController::class, 'getSystemInfo']);
+
+// ===== RUTAS EXISTENTES =====
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -27,3 +58,17 @@ Route::middleware('auth:sanctum')->group(function () {
 // Registro y login públicos
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// Health check endpoint
+Route::get('/health', function () {
+    $notificationService = app(NotificationService::class);
+    
+    return response()->json([
+        'status' => 'ok',
+        'service' => 'Laravel API',
+        'timestamp' => now()->toISOString(),
+        'database' => 'connected',
+        'websocket_service' => $notificationService->isWebSocketServiceAvailable() ? 'available' : 'unavailable',
+        'version' => app()->version()
+    ]);
+});

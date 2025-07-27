@@ -72,6 +72,50 @@ return [
             'after_commit' => false,
         ],
 
+        'rabbitmq' => [
+            'driver' => 'rabbitmq',
+            'hosts' => [
+                [
+                    'host' => env('RABBITMQ_HOST', 'localhost'),
+                    'port' => env('RABBITMQ_PORT', 5672),
+                    'user' => env('RABBITMQ_LOGIN', 'guest'),
+                    'password' => env('RABBITMQ_PASSWORD', 'guest'),
+                    'vhost' => env('RABBITMQ_VHOST', '/'),
+                ],
+            ],
+            'options' => [
+                'ssl_options' => [
+                    'cafile' => env('RABBITMQ_SSL_CAFILE', null),
+                    'local_cert' => env('RABBITMQ_SSL_LOCALCERT', null),
+                    'local_key' => env('RABBITMQ_SSL_LOCALKEY', null),
+                    'verify_peer' => env('RABBITMQ_SSL_VERIFY_PEER', true),
+                    'passphrase' => env('RABBITMQ_SSL_PASSPHRASE', null),
+                ],
+                'queue' => [
+                    'job' => VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Jobs\RabbitMQJob::class,
+                ],
+            ],
+
+            /*
+             * Determine the number of seconds to sleep if there's an error communicating with rabbitmq
+             * If set to false, it'll throw an exception rather than doing the sleep for X seconds.
+             */
+            'sleep_on_error' => env('RABBITMQ_ERROR_SLEEP', 5),
+
+            /*
+             * Optional SSL params if an SSL connection is used
+             * Using an SSL connection will also require to configure your RabbitMQ to enable SSL. More details can be found here: https://www.rabbitmq.com/ssl.html
+             */
+            'ssl_params' => [
+                'ssl_on' => env('RABBITMQ_SSL_ENABLED', false),
+                'cafile' => env('RABBITMQ_SSL_CAFILE', null),
+                'local_cert' => env('RABBITMQ_SSL_LOCALCERT', null),
+                'local_key' => env('RABBITMQ_SSL_LOCALKEY', null),
+                'verify_peer' => env('RABBITMQ_SSL_VERIFY_PEER', false),
+                'passphrase' => env('RABBITMQ_SSL_PASSPHRASE', null),
+            ],
+        ],
+
     ],
 
     /*

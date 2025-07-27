@@ -33,4 +33,12 @@ class Vehiculo extends Model
     protected $primaryKey = 'id_vehiculo';
     public $incrementing = true;
     protected $fillable = ['placa', 'marca', 'modelo', 'anio', 'tipo_id', 'estado'];
+    
+    /**
+     * Relación con VehiculoSucursal (Un vehículo puede estar asignado a múltiples sucursales en diferentes fechas)
+     */
+    public function sucursales()
+    {
+        return $this->hasMany(VehiculoSucursal::class, 'id_vehiculo', 'id_vehiculo');
+    }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('cargo');
             $table->string('correo')->unique();
-            $table->string('telefono');
+            $table->string('telefono')->nullable();
             $table->timestamps();
         });
     }

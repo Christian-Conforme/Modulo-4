@@ -5,9 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Empleado;
 use App\Http\Requests\StoreEmpleadoRequest;
 use App\Http\Requests\UpdateEmpleadoRequest;
+use App\Services\NotificationService;
 
 class EmpleadoController extends Controller
 {
+    private NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Obtener todos los empleados.
      *
@@ -54,6 +61,10 @@ class EmpleadoController extends Controller
     public function store(StoreEmpleadoRequest $request)
     {
         $empleado = Empleado::create($request->validated());
+        
+        // Enviar notificación
+        $this->notificationService->empleadoCreado($empleado->toArray());
+        
         return response()->json($empleado, 201);
     }
 
@@ -112,7 +123,15 @@ class EmpleadoController extends Controller
      */
     public function update(UpdateEmpleadoRequest $request, Empleado $empleado)
     {
+        $datosOriginales = $empleado->toArray();
         $empleado->update($request->validated());
+        
+        // Calcular cambios
+        $cambios = array_diff_assoc($request->validated(), $datosOriginales);
+        
+        // Enviar notificación
+        $this->notificationService->empleadoActualizado($empleado->toArray(), $cambios);
+        
         return response()->json([
             'message' => 'Empleado actualizado',
             'empleado' => $empleado
@@ -132,7 +151,14 @@ class EmpleadoController extends Controller
      */
     public function destroy(Empleado $empleado)
     {
+        $empleadoId = $empleado->id_empleado;
+        $empleadoNombre = $empleado->nombre;
+        
         $empleado->delete();
+        
+        // Enviar notificación
+        $this->notificationService->empleadoEliminado($empleadoId, $empleadoNombre);
+        
         return response()->json([
             'message' => 'Empleado eliminado'
         ], 200);

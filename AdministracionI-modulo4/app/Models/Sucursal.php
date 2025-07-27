@@ -34,4 +34,12 @@ class Sucursal extends Model
     {
         return 'id_sucursal';
     }
+
+    /**
+     * Relación con VehiculoSucursal (Una sucursal puede tener múltiples vehículos asignados)
+     */
+    public function vehiculos()
+    {
+        return $this->hasMany(VehiculoSucursal::class, 'id_sucursal', 'id_sucursal');
+    }
 }
