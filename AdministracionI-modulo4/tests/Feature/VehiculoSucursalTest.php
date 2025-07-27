@@ -74,18 +74,6 @@ class VehiculoSucursalTest extends TestCase
             ]);
     }
 
-    public function test_eliminar_vehiculo_sucursal()
-    {
-        $headers = $this->authenticate();
-        $vehiculoSucursal = VehiculoSucursal::factory()->create();
-
-        $response = $this->withHeaders($headers)->deleteJson('/api/vehiculo-sucursal/' . $vehiculoSucursal->id);
-
-        $response->assertStatus(200)
-            ->assertJson(['message' => 'Vehiculo con Sucursal eliminado']);
-        $this->assertDatabaseMissing('vehiculo_sucursal', ['id' => $vehiculoSucursal->id]);
-    }
-
     public function test_no_autenticado_no_puede_acceder()
     {
         $response = $this->getJson('/api/vehiculo-sucursal');

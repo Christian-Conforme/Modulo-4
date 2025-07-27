@@ -9,6 +9,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// GraphQL Playground - Evita errores al navegar directamente a /graphql
+Route::get('/graphql', function () {
+    return response()->json([
+        'message' => 'GraphQL endpoint está funcionando. Use POST con query parameter.',
+        'playground' => 'Use GraphQL Playground o Postman para enviar queries.',
+        'example' => [
+            'method' => 'POST',
+            'url' => url('/graphql'),
+            'headers' => ['Content-Type' => 'application/json'],
+            'body' => [
+                'query' => '{ empleados { id_empleado nombre } }'
+            ]
+        ]
+    ]);
+});
+
 // Dashboard routes
 Route::get('/dashboard', function () {
     return view('dashboard');

@@ -133,7 +133,7 @@ class VehiculoGraphQLWebSocketTest extends GraphQLWebSocketTestCase
             'placa' => 'UPD123',
             'marca' => 'Honda Updated',
             'modelo' => 'Civic Updated',
-            'anio' => '2023',
+            'anio' => 2023,
             'tipo_id' => 'suv',
             'estado' => 'mantenimiento'
         ];
@@ -278,7 +278,7 @@ class VehiculoGraphQLWebSocketTest extends GraphQLWebSocketTestCase
                 'placa' => $vehiculoExistente->placa,
                 'marca' => 'Test',
                 'modelo' => 'Test',
-                'anio' => '2023',
+                'anio' => 2023,
                 'tipo_id' => 'sedan',
                 'estado' => 'disponible'
             ]
@@ -292,7 +292,7 @@ class VehiculoGraphQLWebSocketTest extends GraphQLWebSocketTestCase
                 'placa' => 'NEW123',
                 'marca' => 'Test',
                 'modelo' => 'Test',
-                'anio' => '1800', // Año muy antiguo
+                'anio' => 1800, // Año muy antiguo
                 'tipo_id' => 'sedan',
                 'estado' => 'disponible'
             ]
@@ -307,7 +307,7 @@ class VehiculoGraphQLWebSocketTest extends GraphQLWebSocketTestCase
                 'placa' => 'NEW456',
                 'marca' => 'Test',
                 'modelo' => 'Test',
-                'anio' => '2023',
+                'anio' => 2023,
                 'tipo_id' => 'sedan',
                 'estado' => 'estado_invalido'
             ]

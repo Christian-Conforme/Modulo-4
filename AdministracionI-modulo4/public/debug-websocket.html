@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug WebSocket - Laravel Reverb</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 3px 5px;
+            border-radius: 3px;
+        }
+        .log-info { background-color: #cce5ff; }
+        .log-success { background-color: #d4edda; }
+        .log-error { background-color: #f8d7da; }
+        .log-warning { background-color: #fff3cd; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .test-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .graphql-test {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Debug WebSocket & GraphQL</h1>
+            <p>Panel de debug para WebSocket (Laravel Reverb) y GraphQL</p>
+        </div>
+
+        <!-- Estado de Conexión -->
+        <div class="section">
+            <h3>📡 Estado de Conexión WebSocket</h3>
+            <p>Reverb Server: <span id="ws-status" class="status disconnected">Desconectado</span></p>
+            <p>URL: <code id="ws-url">ws://127.0.0.1:8080</code></p>
+            <button onclick="connectWebSocket()">Conectar</button>
+            <button onclick="disconnectWebSocket()">Desconectar</button>
+        </div>
+
+        <!-- Logs -->
+        <div class="section">
+            <h3>📋 Logs en Tiempo Real</h3>
+            <div id="log-container" class="log"></div>
+            <button onclick="clearLogs()">Limpiar Logs</button>
+        </div>
+
+        <!-- Tests -->
+        <div class="test-section">
+            <!-- WebSocket Tests -->
+            <div class="section">
+                <h3>🧪 Tests WebSocket</h3>
+                <button onclick="testWebSocketEvent('empleado-creado')">Test Empleado Creado</button>
+                <button onclick="testWebSocketEvent('vehiculo-creado')">Test Vehículo Creado</button>
+                <button onclick="testWebSocketEvent('general-event')">Test Evento General</button>
+                <button onclick="testWebSocketEvent('multiple-events')">Test Múltiples Eventos</button>
+            </div>
+
+            <!-- GraphQL Tests -->
+            <div class="graphql-test">
+                <h3>🔗 Tests GraphQL</h3>
+                <textarea id="graphql-query" placeholder="Escribe tu query GraphQL aquí...">
+{
+  empleados {
+    id_empleado
+    nombre
+    correo
+  }
+}</textarea>
+                <br>
+                <button onclick="testGraphQL()">Ejecutar Query</button>
+                <button onclick="loadSampleQueries()">Cargar Ejemplos</button>
+            </div>
+        </div>
+
+        <!-- Respuestas GraphQL -->
+        <div class="section">
+            <h3>📊 Respuesta GraphQL</h3>
+            <div id="graphql-response" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let websocket = null;
+        let logContainer = document.getElementById('log-container');
+        let wsStatus = document.getElementById('ws-status');
+
+        // Función para agregar logs
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Conectar WebSocket
+        function connectWebSocket() {
+            try {
+                websocket = new WebSocket('ws://127.0.0.1:8080');
+                
+                websocket.onopen = function(event) {
+                    addLog('✅ Conectado a Laravel Reverb', 'success');
+                    wsStatus.textContent = 'Conectado';
+                    wsStatus.className = 'status connected';
+                };
+
+                websocket.onmessage = function(event) {
+                    addLog(`📨 Mensaje recibido: ${event.data}`, 'info');
+                    try {
+                        const data = JSON.parse(event.data);
+                        addLog(`📊 Datos parseados: ${JSON.stringify(data, null, 2)}`, 'info');
+                    } catch (e) {
+                        addLog(`⚠️ No se pudo parsear como JSON`, 'warning');
+                    }
+                };
+
+                websocket.onclose = function(event) {
+                    addLog(`❌ Conexión cerrada: ${event.code} - ${event.reason}`, 'error');
+                    wsStatus.textContent = 'Desconectado';
+                    wsStatus.className = 'status disconnected';
+                };
+
+                websocket.onerror = function(error) {
+                    addLog(`🚨 Error WebSocket: ${error.message || 'Error desconocido'}`, 'error');
+                };
+
+            } catch (error) {
+                addLog(`🚨 Error al conectar: ${error.message}`, 'error');
+            }
+        }
+
+        // Desconectar WebSocket
+        function disconnectWebSocket() {
+            if (websocket) {
+                websocket.close();
+                websocket = null;
+            }
+        }
+
+        // Test WebSocket Events
+        async function testWebSocketEvent(eventType) {
+            try {
+                addLog(`🧪 Iniciando test: ${eventType}`, 'info');
+                const response = await fetch(`/websocket-test/${eventType}`);
+                const result = await response.json();
+                addLog(`✅ Test completado: ${JSON.stringify(result)}`, 'success');
+            } catch (error) {
+                addLog(`🚨 Error en test: ${error.message}`, 'error');
+            }
+        }
+
+        // Test GraphQL
+        async function testGraphQL() {
+            const query = document.getElementById('graphql-query').value;
+            const responseDiv = document.getElementById('graphql-response');
+            
+            try {
+                addLog('🔗 Ejecutando query GraphQL...', 'info');
+                
+                const response = await fetch('/graphql', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+
+                const result = await response.json();
+                responseDiv.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                
+                if (result.errors) {
+                    addLog(`🚨 GraphQL Error: ${JSON.stringify(result.errors)}`, 'error');
+                } else {
+                    addLog('✅ GraphQL Query ejecutada exitosamente', 'success');
+                }
+            } catch (error) {
+                addLog(`🚨 Error GraphQL: ${error.message}`, 'error');
+                responseDiv.innerHTML = `<pre style="color: red;">Error: ${error.message}</pre>`;
+            }
+        }
+
+        // Cargar queries de ejemplo
+        function loadSampleQueries() {
+            const samples = [
+                '{ empleados { id_empleado nombre correo } }',
+                '{ vehiculos { id_vehiculo marca modelo anio estado } }',
+                '{ sucursales { id_sucursal nombre direccion ciudad } }',
+                'mutation { crearEmpleado(input: { nombre: "Test", correo: "test@test.com", cargo: "Test" }) { id_empleado nombre } }'
+            ];
+            
+            const randomSample = samples[Math.floor(Math.random() * samples.length)];
+            document.getElementById('graphql-query').value = randomSample;
+        }
+
+        // Limpiar logs
+        function clearLogs() {
+            logContainer.innerHTML = '';
+        }
+
+        // Auto-conectar al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('🚀 Debug panel iniciado', 'info');
+            addLog('💡 Tip: Conecta WebSocket y ejecuta queries GraphQL para ver eventos en tiempo real', 'info');
+        });
+    </script>
+</body>
+</html>

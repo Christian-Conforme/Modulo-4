@@ -48,7 +48,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('vehiculos', VehiculoController::class);
     Route::apiResource('vehiculo-sucursal', VehiculoSucursalController::class);
     Route::apiResource('users', UserController::class);
-    Route::apiResource('roles', RolController::class);
+    
+    // Rutas específicas para roles con parámetro personalizado
+    Route::get('roles', [RolController::class, 'index'])->name('roles.index');
+    Route::post('roles', [RolController::class, 'store'])->name('roles.store');
+    Route::get('roles/{id_rol}', [RolController::class, 'show'])->name('roles.show');
+    Route::put('roles/{id_rol}', [RolController::class, 'update'])->name('roles.update');
+    Route::delete('roles/{id_rol}', [RolController::class, 'destroy'])->name('roles.destroy');
+    
     Route::apiResource('empleados', EmpleadoController::class);
     Route::post('/gemini/preguntar', [GeminiController::class, 'preguntar']);
 

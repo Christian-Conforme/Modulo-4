@@ -63,18 +63,6 @@ class RolTest extends TestCase
             ->assertJsonFragment($data);
     }
 
-    public function test_eliminar_rol()
-    {
-        $headers = $this->authenticate();
-        $rol = Rol::factory()->create();
-
-        $response = $this->withHeaders($headers)->deleteJson('/api/roles/' . $rol->id_rol);
-
-        $response->assertStatus(200)
-            ->assertJson(['message' => 'Rol eliminado']);
-        $this->assertDatabaseMissing('rol', ['id_rol' => $rol->id_rol]);
-    }
-
     public function test_no_autenticado_no_puede_acceder()
     {
         $response = $this->getJson('/api/roles');

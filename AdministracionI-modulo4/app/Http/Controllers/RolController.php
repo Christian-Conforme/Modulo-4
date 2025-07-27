@@ -124,15 +124,22 @@ class RolController extends Controller
     public function destroy($id_rol)
     {
         try {
-            $rol = Rol::findOrFail($id_rol);
+            $rol = Rol::where('id_rol', $id_rol)->first();
+            
+            if (!$rol) {
+                return response()->json([
+                    'message' => 'Rol no encontrado'
+                ], 404);
+            }
+            
             $rol->delete();
             return response()->json([
                 'message' => 'Rol eliminado'
             ], 200);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Rol no encontrado'
-            ], 404);
+                'message' => 'Error al eliminar el rol: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

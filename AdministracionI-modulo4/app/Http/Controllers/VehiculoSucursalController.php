@@ -170,25 +170,39 @@ class VehiculoSucursalController extends Controller
      *   "message": "Relación no encontrada"
      * }
      */
-    public function destroy(VehiculoSucursal $vehiculoSucursal)
+    public function destroy($id)
     {
-        $asignacionId = $vehiculoSucursal->id;
-        
-        // Obtener datos del vehículo y sucursal para la notificación
-        $vehiculo = Vehiculo::find($vehiculoSucursal->id_vehiculo);
-        $sucursal = Sucursal::find($vehiculoSucursal->id_sucursal);
-        
-        $vehiculoSucursal->delete();
-        
-        // Enviar notificación
-        $this->notificationService->vehiculoDesasignado(
-            $asignacionId,
-            $vehiculo ? $vehiculo->toArray() : [],
-            $sucursal ? $sucursal->toArray() : []
-        );
-        
-        return response()->json([
-            'message' => 'Vehiculo con Sucursal eliminado'
-        ], 200);
+        try {
+            $vehiculoSucursal = VehiculoSucursal::where('id', $id)->first();
+            
+            if (!$vehiculoSucursal) {
+                return response()->json([
+                    'message' => 'Relación no encontrada'
+                ], 404);
+            }
+            
+            $asignacionId = $vehiculoSucursal->id;
+            
+            // Obtener datos del vehículo y sucursal para la notificación ANTES de eliminar
+            $vehiculo = Vehiculo::where('id_vehiculo', $vehiculoSucursal->id_vehiculo)->first();
+            $sucursal = Sucursal::where('id_sucursal', $vehiculoSucursal->id_sucursal)->first();
+            
+            $vehiculoSucursal->delete();
+            
+            // Enviar notificación
+            $this->notificationService->vehiculoDesasignado(
+                $asignacionId,
+                $vehiculo ? $vehiculo->toArray() : [],
+                $sucursal ? $sucursal->toArray() : []
+            );
+            
+            return response()->json([
+                'message' => 'Vehiculo con Sucursal eliminado'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al eliminar: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
