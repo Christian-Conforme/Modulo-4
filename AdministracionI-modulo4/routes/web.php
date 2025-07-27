@@ -27,7 +27,7 @@ Route::get('/graphql', function () {
 
 // Dashboard routes
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect('/dashboard-v2');
 })->name('dashboard');
 
 Route::get('/dashboard-v2', function () {

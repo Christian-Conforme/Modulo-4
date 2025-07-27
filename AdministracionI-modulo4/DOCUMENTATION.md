@@ -1,26 +1,29 @@
-# 🚀 Sistema GraphQL + WebSocket Completo
+# Sistema GraphQL + WebSocket Completo
 
-## 📋 Descripción General
+## Descripción General
 
 Este sistema implementa una solución completa de administración con:
-- **GraphQL API** para operaciones CRUD
-- **WebSocket** para notificaciones en tiempo real
-- **Laravel Reverb** como servidor WebSocket
-- **Lighthouse GraphQL** para el esquema y resolvers
-- **Broadcasting** para eventos en tiempo real
 
-## 🏗️ Arquitectura del Sistema
+- GraphQL API para operaciones CRUD
+- WebSocket para notificaciones en tiempo real
+- Laravel Reverb como servidor WebSocket
+- Lighthouse GraphQL para el esquema y resolvers
+- Broadcasting para eventos en tiempo real
+
+## Arquitectura del Sistema
 
 ### Entidades Implementadas
-- **👥 Usuarios** - Gestión de usuarios del sistema
-- **👨‍💼 Empleados** - Personal de la empresa
-- **🏷️ Roles** - Roles y permisos
-- **🚗 Vehículos** - Flota de vehículos
-- **🏢 Sucursales** - Ubicaciones de la empresa
-- **🔗 VehículoSucursal** - Relación vehículos-sucursales
+
+- Usuarios - Gestión de usuarios del sistema
+- Empleados - Personal de la empresa
+- Roles - Roles y permisos
+- Vehículos - Flota de vehículos
+- Sucursales - Ubicaciones de la empresa
+- VehículoSucursal - Relación vehículos-sucursales
 
 ### Componentes Técnicos
-```
+
+```markdown
 ├── GraphQL Schema (graphql/schema.graphql)
 ├── Resolvers
 │   ├── Queries (app/GraphQL/Queries/)
@@ -30,15 +33,17 @@ Este sistema implementa una solución completa de administración con:
 └── Tests (tests/Feature/)
 ```
 
-## 🔧 Instalación y Configuración
+## Instalación y Configuración
 
 ### 1. Requisitos Previos
+
 - PHP 8.2+
 - Composer
 - PostgreSQL
 - Node.js (para Vite)
 
 ### 2. Configuración Automática
+
 ```bash
 # Ejecutar script de inicio automático
 start_system.bat
@@ -47,11 +52,13 @@ start_system.bat
 ### 3. Configuración Manual
 
 #### Base de Datos
+
 ```bash
 php artisan migrate:fresh --seed
 ```
 
 #### Servicios WebSocket
+
 ```bash
 # Terminal 1: WebSocket Server
 php artisan reverb:start
@@ -63,16 +70,22 @@ php artisan queue:work
 php artisan serve
 ```
 
-## 📊 GraphQL API
+## GraphQL API
 
 ### Endpoint Principal
-```
+
+```Postman
 POST http://localhost:8000/graphql
+```
+
+```Apollo
+POST http://localhost:8000/graphiql
 ```
 
 ### Operaciones Disponibles
 
-#### 👥 Usuarios
+#### Usuarios
+
 ```graphql
 # Crear Usuario
 mutation CrearUser($input: UserInput!) {
@@ -111,7 +124,8 @@ mutation EliminarUser($id: ID!) {
 }
 ```
 
-#### 👨‍💼 Empleados
+#### Empleados
+
 ```graphql
 # Crear Empleado
 mutation CrearEmpleado($input: EmpleadoInput!) {
@@ -135,7 +149,8 @@ query ObtenerEmpleados {
 }
 ```
 
-#### 🏷️ Roles
+#### Roles
+
 ```graphql
 # Crear Rol
 mutation CrearRol($input: RolInput!) {
@@ -156,7 +171,8 @@ query ObtenerRoles {
 }
 ```
 
-#### 🚗 Vehículos
+#### Vehículos
+
 ```graphql
 # Crear Vehículo
 mutation CrearVehiculo($input: VehiculoInput!) {
@@ -182,7 +198,8 @@ query ObtenerVehiculos {
 }
 ```
 
-#### 🏢 Sucursales
+#### Sucursales
+
 ```graphql
 # Crear Sucursal
 mutation CrearSucursal($input: SucursalInput!) {
@@ -206,22 +223,25 @@ query ObtenerSucursales {
 }
 ```
 
-## 📡 WebSocket Events
+## WebSocket Events
 
 ### Canales Disponibles
-- `usuarios` - Eventos de usuarios
-- `empleados` - Eventos de empleados
-- `roles` - Eventos de roles
-- `vehiculos` - Eventos de vehículos
-- `sucursales` - Eventos de sucursales
-- `dashboard` - Eventos generales del dashboard
+
+- usuarios - Eventos de usuarios
+- empleados - Eventos de empleados
+- roles - Eventos de roles
+- vehiculos - Eventos de vehículos
+- sucursales - Eventos de sucursales
+- dashboard - Eventos generales del dashboard
 
 ### Tipos de Eventos
-- `{entidad}.creado` - Cuando se crea una entidad
-- `{entidad}.actualizado` - Cuando se actualiza una entidad
-- `{entidad}.eliminado` - Cuando se elimina una entidad
+
+- {entidad}.creado - Cuando se crea una entidad
+- {entidad}.actualizado - Cuando se actualiza una entidad
+- {entidad}.eliminado - Cuando se elimina una entidad
 
 ### Ejemplo de Conexión WebSocket (JavaScript)
+
 ```javascript
 const pusher = new Pusher('app-key', {
     wsHost: '127.0.0.1',
@@ -235,9 +255,10 @@ channel.bind('usuario.creado', (data) => {
 });
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Tests Automatizados
+
 ```bash
 # Todos los tests
 php artisan test
@@ -250,25 +271,29 @@ php run_all_tests.php
 ```
 
 ### Test Manual con Interfaz Web
+
 Acceder a: `http://localhost:8000/websocket-test.html`
 
 Funcionalidades de la interfaz:
-- ✅ Operaciones CRUD para todas las entidades
-- ✅ Visualización de respuestas GraphQL
-- ✅ Logs de eventos WebSocket en tiempo real
-- ✅ Estado de conexión WebSocket
-- ✅ Tabs organizados por entidad
 
-## 📁 Estructura de Archivos
+- Operaciones CRUD para todas las entidades
+- Visualización de respuestas GraphQL
+- Logs de eventos WebSocket en tiempo real
+- Estado de conexión WebSocket
+- Tabs organizados por entidad
+
+## Estructura de Archivos
 
 ### GraphQL
-```
+
+```graphql
 graphql/
 └── schema.graphql              # Esquema completo GraphQL
 ```
 
 ### Resolvers
-```
+
+```Resolver
 app/GraphQL/
 ├── Queries/
 │   ├── User.php               # Query individual de usuario
@@ -284,7 +309,8 @@ app/GraphQL/
 ```
 
 ### Events
-```
+
+```Eventos
 app/Events/
 ├── UserCreado.php             # Evento creación usuario
 ├── UserActualizado.php        # Evento actualización usuario
@@ -293,7 +319,8 @@ app/Events/
 ```
 
 ### Models
-```
+
+```Modelos
 app/Models/
 ├── User.php                   # Modelo Usuario
 ├── Empleado.php               # Modelo Empleado
@@ -304,7 +331,8 @@ app/Models/
 ```
 
 ### Tests
-```
+
+```Test
 tests/Feature/
 ├── GraphQLWebSocketTestCase.php          # Clase base para tests
 ├── UserGraphQLWebSocketTest.php          # Tests de usuarios
@@ -312,28 +340,32 @@ tests/Feature/
 └── ...                                   # Más tests
 ```
 
-## 🔄 Flujo de Operaciones
+## Flujo de Operaciones
 
 ### 1. Creación de Entidad
-```
+
+```Info
 Cliente → GraphQL Mutation → Resolver → Model → Database
                                 ↓
                           Event Dispatch → WebSocket → Clientes Conectados
 ```
 
 ### 2. Consulta de Datos
-```
+
+```Info
 Cliente → GraphQL Query → Resolver → Model → Database → Respuesta
 ```
 
 ### 3. Notificación en Tiempo Real
-```
+
+```Info
 Operación CRUD → Event → Broadcasting → WebSocket Server → Clientes
 ```
 
-## 🛠️ Configuración Avanzada
+## Configuración Avanzada
 
 ### Variables de Entorno
+
 ```env
 # GraphQL
 LIGHTHOUSE_SCHEMA_CACHE_ENABLE=false
@@ -351,6 +383,7 @@ QUEUE_CONNECTION=database
 ```
 
 ### Comandos Útiles
+
 ```bash
 # Limpiar cachés
 php artisan config:clear
@@ -366,9 +399,10 @@ php artisan lighthouse:print-schema
 php artisan queue:monitor
 ```
 
-## 🚦 Estado del Sistema
+## Estado del Sistema
 
-### ✅ Completamente Implementado
+### Completamente Implementado
+
 - [x] Modelos y migraciones
 - [x] GraphQL Schema completo
 - [x] Resolvers para todas las entidades
@@ -377,19 +411,27 @@ php artisan queue:monitor
 - [x] Interfaz web de testing
 - [x] Documentación completa
 
-### 📊 Entidades Funcionales
-- [x] **Usuarios** - CRUD + WebSocket
-- [x] **Empleados** - CRUD + WebSocket
-- [x] **Roles** - CRUD + WebSocket
-- [x] **Vehículos** - CRUD + WebSocket
-- [x] **Sucursales** - CRUD + WebSocket
-- [x] **VehículoSucursal** - CRUD + WebSocket
+### Entidades Funcionales
 
-## 🔍 Troubleshooting
+### Errores Comunes
+
+- WebSocket no conecta
+- GraphQL no responde
+- Tests fallan
+
+- [x] Usuarios - CRUD + WebSocket
+- [x] Empleados - CRUD + WebSocket
+- [x] Roles - CRUD + WebSocket
+- [x] Vehículos - CRUD + WebSocket
+- [x] Sucursales - CRUD + WebSocket
+- [x] VehículoSucursal - CRUD + WebSocket
+
+## Troubleshooting
 
 ### Problemas Comunes
 
 #### WebSocket no conecta
+
 ```bash
 # Verificar puerto disponible
 netstat -an | findstr :8080
@@ -399,6 +441,7 @@ php artisan reverb:restart
 ```
 
 #### GraphQL no responde
+
 ```bash
 # Verificar esquema
 php artisan lighthouse:validate-schema
@@ -408,6 +451,7 @@ php artisan lighthouse:clear-cache
 ```
 
 #### Tests fallan
+
 ```bash
 # Verificar base de datos de testing
 php artisan migrate:fresh --env=testing
@@ -416,14 +460,6 @@ php artisan migrate:fresh --env=testing
 php artisan test tests/Feature/UserGraphQLWebSocketTest.php --verbose
 ```
 
-## 📞 Soporte
+## Soporte
 
 Para más información o soporte:
-- Revisar logs: `storage/logs/laravel.log`
-- Verificar implementación: `php verify_implementation.php`
-- Test completo: `php test_user_complete.php`
-- Interfaz de pruebas: `http://localhost:8000/websocket-test.html`
-
----
-
-**🎉 Sistema GraphQL + WebSocket completamente funcional y listo para producción!**

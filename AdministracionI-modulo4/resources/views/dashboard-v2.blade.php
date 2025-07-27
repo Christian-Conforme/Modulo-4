@@ -159,6 +159,8 @@
         .metric-icon.vehiculos { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
         .metric-icon.sucursales { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
         .metric-icon.usuarios { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .metric-icon.roles { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .metric-icon.asignaciones { background: linear-gradient(135deg, #06b6d4, #0891b2); }
         
         .metric-value {
             font-size: 2.5rem;
@@ -269,6 +271,16 @@
         .activity-icon.created { background-color: var(--success-color); }
         .activity-icon.updated { background-color: var(--info-color); }
         .activity-icon.deleted { background-color: var(--danger-color); }
+        
+        /* Efecto de actualización para métricas */
+        .metric-updated {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-radius: 4px;
+            padding: 2px 6px;
+            transition: all 0.3s ease;
+            transform: scale(1.1);
+        }
         
         .activity-content {
             flex: 1;
@@ -510,7 +522,7 @@
                                 </div>
                             </div>
                             <div class="metric-value" id="total-empleados">
-                                <div class="loading"></div>
+                                <span class="metric-number">0</span>
                             </div>
                             <div class="metric-label">Total Empleados</div>
                             <div class="metric-change positive" id="empleados-change">
@@ -536,7 +548,7 @@
                                 </div>
                             </div>
                             <div class="metric-value" id="total-vehiculos">
-                                <div class="loading"></div>
+                                <span class="metric-number">0</span>
                             </div>
                             <div class="metric-label">Flota de Vehículos</div>
                             <div class="metric-change positive" id="vehiculos-change">
@@ -562,7 +574,7 @@
                                 </div>
                             </div>
                             <div class="metric-value" id="total-sucursales">
-                                <div class="loading"></div>
+                                <span class="metric-number">0</span>
                             </div>
                             <div class="metric-label">Sucursales Activas</div>
                             <div class="metric-change positive" id="sucursales-change">
@@ -588,10 +600,65 @@
                                 </div>
                             </div>
                             <div class="metric-value" id="total-usuarios">
-                                <div class="loading"></div>
+                                <span class="metric-number">0</span>
                             </div>
                             <div class="metric-label">Usuarios del Sistema</div>
                             <div class="metric-change positive" id="usuarios-change">
+                                <i class="fas fa-arrow-up me-1"></i>+0 este mes
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Segunda fila de métricas -->
+                <div class="row g-4 mt-2">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-icon roles">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i>Ver roles</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-plus me-2"></i>Crear rol</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="metric-value" id="total-roles">
+                                <span class="metric-number">0</span>
+                            </div>
+                            <div class="metric-label">Roles del Sistema</div>
+                            <div class="metric-change positive" id="roles-change">
+                                <i class="fas fa-arrow-up me-1"></i>+0 este mes
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-sm-12">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-icon asignaciones">
+                                    <i class="fas fa-route"></i>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i>Ver asignaciones</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-plus me-2"></i>Nueva asignación</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="metric-value" id="total-asignaciones">
+                                <span class="metric-number">0</span>
+                            </div>
+                            <div class="metric-label">Asignaciones Activas</div>
+                            <div class="metric-change positive" id="asignaciones-change">
                                 <i class="fas fa-arrow-up me-1"></i>+0 este mes
                             </div>
                         </div>
@@ -984,9 +1051,157 @@
             empleados: 0,
             vehiculos: 0,
             sucursales: 0,
-            usuarios: 0
+            usuarios: 0,
+            roles: 0,
+            asignaciones: 0
         };
         let charts = {};
+        
+        // ===== DEDUPLICACIÓN DE EVENTOS =====
+        let processedEvents = new Set();
+        let eventBuffer = [];
+        let processingTimeout = null;
+        
+        // ===== DEDUPLICACIÓN DE EVENTOS =====
+        function generateEventId(eventData) {
+            // Crear un ID único basado en el evento, canal y timestamp aproximado
+            const eventName = eventData.event || 'unknown';
+            const channel = eventData.channel || 'unknown';
+            const timestamp = Math.floor(Date.now() / 1000); // Redondear a segundos
+            
+            return `${eventName}-${channel}-${timestamp}`;
+        }
+        
+        function isDuplicateEvent(eventId) {
+            // Tratamiento especial para diferentes tipos de eventos
+            const eventTypes = {
+                'rol.actualizado': 1000,      // 1 segundo para roles
+                'sucursal.creada': 2000,      // 2 segundos para sucursales
+                'sucursal.actualizada': 2000,
+                'sucursal.eliminada': 2000,
+                'empleado.creado': 2000,      // 2 segundos para empleados
+                'empleado.actualizado': 2000,
+                'empleado.eliminado': 2000,
+                'vehiculo.creado': 2000,      // 2 segundos para vehículos
+                'vehiculo.actualizado': 2000,
+                'vehiculo.eliminado': 2000,
+                'vehiculo-sucursal.creado': 3000,    // 3 segundos para asignaciones
+                'vehiculo-sucursal.actualizado': 3000,
+                'vehiculo-sucursal.eliminado': 3000,
+                'vehiculo_sucursal.creado': 3000,    // 3 segundos para asignaciones (formato con guión bajo)
+                'vehiculo_sucursal.actualizado': 3000,
+                'vehiculo_sucursal.eliminado': 3000
+            };
+            
+            // Extraer el tipo de evento del ID
+            const eventTypePattern = /^([^-]+\.[^-]+)-/;
+            const match = eventId.match(eventTypePattern);
+            
+            if (match) {
+                const eventType = match[1];
+                const timeWindow = eventTypes[eventType];
+                
+                if (timeWindow) {
+                    // Verificar si hay eventos similares en la ventana de tiempo especificada
+                    const currentTime = Date.now();
+                    const existingSimilarEvents = Array.from(processedEvents).filter(id => 
+                        id.startsWith(eventType) && id !== eventId
+                    );
+                    
+                    for (const existingId of existingSimilarEvents) {
+                        // Extraer timestamp del ID existente
+                        const timestampPattern = /-(\d+)$/;
+                        const existingMatch = existingId.match(timestampPattern);
+                        const currentMatch = eventId.match(timestampPattern);
+                        
+                        if (existingMatch && currentMatch) {
+                            const existingTime = parseInt(existingMatch[1]) * 1000; // Convertir a ms
+                            const currentEventTime = parseInt(currentMatch[1]) * 1000;
+                            
+                            // Si la diferencia es menor a la ventana de tiempo, es duplicado
+                            if (Math.abs(currentEventTime - existingTime) < timeWindow) {
+                                console.log(`🔄 Evento ${eventType} duplicado rechazado (ventana: ${timeWindow}ms):`, eventId);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (processedEvents.has(eventId)) {
+                console.log('🔄 Evento duplicado detectado:', eventId);
+                return true;
+            }
+            
+            processedEvents.add(eventId);
+            
+            // Limpiar eventos antiguos (más de 30 segundos)
+            if (processedEvents.size > 100) {
+                const currentTime = Math.floor(Date.now() / 1000);
+                const eventsToRemove = [];
+                
+                processedEvents.forEach(id => {
+                    const parts = id.split('-');
+                    const eventTime = parseInt(parts[parts.length - 1]);
+                    if (currentTime - eventTime > 30) {
+                        eventsToRemove.push(id);
+                    }
+                });
+                
+                eventsToRemove.forEach(id => processedEvents.delete(id));
+            }
+            
+            return false;
+        }
+        
+        function processEventBuffer() {
+            if (eventBuffer.length === 0) return;
+            
+            console.log(`📦 Procesando buffer de ${eventBuffer.length} eventos`);
+            
+            // Agrupar eventos similares que llegaron al mismo tiempo
+            const groupedEvents = {};
+            
+            eventBuffer.forEach(event => {
+                // Crear clave más específica para agrupar mejor los eventos
+                const eventType = event.event || 'unknown';
+                const channel = event.channel || 'unknown';
+                
+                // Para eventos de entidades específicas, incluir más contexto
+                let groupKey = `${eventType}-${channel}`;
+                
+                // Si el evento tiene datos, intentar extraer ID de entidad
+                if (event.data) {
+                    try {
+                        const eventData = JSON.parse(event.data);
+                        const entityId = eventData.id || eventData.id_empleado || eventData.id_vehiculo || 
+                                        eventData.id_sucursal || eventData.id_usuario || eventData.id_rol;
+                        if (entityId) {
+                            groupKey += `-${entityId}`;
+                        }
+                    } catch (e) {
+                        // Si no se puede parsear, usar la clave original
+                    }
+                }
+                
+                if (!groupedEvents[groupKey]) {
+                    groupedEvents[groupKey] = [];
+                }
+                groupedEvents[groupKey].push(event);
+            });
+            
+            // Procesar solo el último evento de cada grupo
+            Object.entries(groupedEvents).forEach(([groupKey, eventGroup]) => {
+                if (eventGroup.length > 1) {
+                    console.log(`⚠️ ${eventGroup.length} eventos similares agrupados para ${groupKey}, procesando solo el último`);
+                }
+                const lastEvent = eventGroup[eventGroup.length - 1];
+                processRealTimeEvent(lastEvent);
+            });
+            
+            // Limpiar buffer
+            eventBuffer = [];
+        }
         
         // ===== WEBSOCKET CONNECTION =====
         function connectWebSocket() {
@@ -999,6 +1214,11 @@
                 socket.onopen = function() {
                     console.log('✅ WebSocket conectado');
                     updateConnectionStatus('connected', 'Conectado');
+                    
+                    // Limpiar historial de eventos al reconectar
+                    processedEvents.clear();
+                    eventBuffer = [];
+                    console.log('🧹 Historial de eventos limpiado');
                     
                     // Suscribirse a canales
                     const channels = ['empleados', 'roles', 'usuarios', 'vehiculos', 'sucursales', 'vehiculo-sucursal', 'dashboard'];
@@ -1016,7 +1236,29 @@
                 
                 socket.onmessage = function(event) {
                     const data = JSON.parse(event.data);
+                    console.log('📨 Mensaje WebSocket recibido:', data);
+                    
+                    // Generar ID único para el evento
+                    const eventId = generateEventId(data);
+                    
+                    // Verificar si es un evento duplicado
+                    if (isDuplicateEvent(eventId)) {
+                        return; // Ignorar evento duplicado
+                    }
+                    
                     if (data.event && !data.event.startsWith('pusher:')) {
+                        // Agregar al buffer para procesamiento en lote
+                        eventBuffer.push(data);
+                        
+                        // Cancelar timeout anterior si existe
+                        if (processingTimeout) {
+                            clearTimeout(processingTimeout);
+                        }
+                        
+                        // Procesar eventos después de 100ms de inactividad
+                        processingTimeout = setTimeout(processEventBuffer, 100);
+                    } else if (data.event && data.event.startsWith('pusher_internal:')) {
+                        // Procesar eventos internos inmediatamente
                         handleRealTimeEvent(data);
                     }
                 };
@@ -1060,7 +1302,8 @@
                     empleados: 'query { empleados { id_empleado } }',
                     vehiculos: 'query { vehiculos { id_vehiculo estado } }',
                     sucursales: 'query { sucursales { id_sucursal } }',
-                    usuarios: 'query { users { id_usuario } }'
+                    usuarios: 'query { users { id_usuario } }',
+                    roles: 'query { roles { id_rol } }'
                 };
                 
                 for (const [key, query] of Object.entries(queries)) {
@@ -1072,6 +1315,7 @@
                         else if (key === 'vehiculos' && data.vehiculos) count = data.vehiculos.length;
                         else if (key === 'sucursales' && data.sucursales) count = data.sucursales.length;
                         else if (key === 'usuarios' && data.users) count = data.users.length;
+                        else if (key === 'roles' && data.roles) count = data.roles.length;
                         
                         metricsData[key] = count;
                         updateMetricCard(key, count);
@@ -1090,38 +1334,204 @@
                 // Inicializar gráficos
                 initializeCharts();
                 
+                // Inicializar asignaciones (se actualizará con eventos en tiempo real)
+                metricsData.asignaciones = 0;
+                updateMetricCard('asignaciones', 0);
+                
             } catch (error) {
                 console.error('Error cargando métricas:', error);
             }
         }
         
         function updateMetricCard(type, value) {
-            const element = document.getElementById(`total-${type}`);
+            // Mapear tipos a IDs correctos
+            const typeIdMap = {
+                'empleados': 'total-empleados',
+                'vehiculos': 'total-vehiculos',
+                'sucursales': 'total-sucursales',
+                'usuarios': 'total-usuarios',
+                'roles': 'total-roles',
+                'asignaciones': 'total-asignaciones'
+            };
+            
+            const elementId = typeIdMap[type] || `total-${type}`;
+            const element = document.querySelector(`#${elementId} .metric-number`);
+            
+            console.log(`🎯 Actualizando tarjeta métrica: ${elementId} = ${value}`);
+            
             if (element) {
-                element.innerHTML = value;
+                element.textContent = value;
+                
+                // Agregar efecto visual de actualización
+                element.classList.add('metric-updated');
+                setTimeout(() => {
+                    element.classList.remove('metric-updated');
+                }, 1000);
+                
+                console.log(`✅ Tarjeta métrica actualizada: ${elementId}`);
+            } else {
+                console.log(`⚠️ No se encontró elemento para: #${elementId} .metric-number`);
             }
         }
         
         // ===== MANEJO DE EVENTOS EN TIEMPO REAL =====
         function handleRealTimeEvent(data) {
-            console.log('📡 Evento recibido:', data);
+            console.log('📡 Evento recibido en Dashboard:', data);
             
-            // Agregar a feed de actividad
-            addActivityItem(data);
+            // Filtrar eventos internos de Pusher
+            if (data.event && data.event.startsWith('pusher_internal:')) {
+                // Solo mostrar suscripciones exitosas
+                if (data.event === 'pusher_internal:subscription_succeeded') {
+                    const channelName = data.channel;
+                    const channelDisplayName = getChannelDisplayName(channelName);
+                    console.log(`✅ Dashboard suscrito al canal: ${channelDisplayName}`);
+                    
+                    // Agregar a feed de actividad solo para suscripciones
+                    addActivityItem({
+                        event: 'subscription_succeeded',
+                        data: {
+                            entity_type: channelName,
+                            action: 'connected',
+                            message: `Dashboard conectado al canal ${channelDisplayName}`
+                        },
+                        channel: channelName
+                    });
+                }
+                return; // No procesar otros eventos internos
+            }
             
-            // Actualizar métricas si es necesario
-            if (data.data && data.data.entity_type) {
-                const entityType = data.data.entity_type;
-                const action = data.data.action;
+            // Procesar eventos reales de negocio
+            processRealTimeEvent(data);
+        }
+        
+        function processRealTimeEvent(data) {
+            if (data.event && !data.event.startsWith('pusher:')) {
+                console.log('🎯 Procesando evento de negocio:', data.event, 'en canal:', data.channel);
                 
-                if (action === 'created') {
-                    metricsData[entityType]++;
-                    updateMetricCard(entityType, metricsData[entityType]);
-                } else if (action === 'deleted') {
-                    metricsData[entityType]--;
-                    updateMetricCard(entityType, Math.max(0, metricsData[entityType]));
+                // Convertir el evento al formato esperado por el dashboard
+                const businessEvent = convertToBusinessEvent(data);
+                if (businessEvent) {
+                    addActivityItem(businessEvent);
+                    
+                    // Actualizar métricas si es necesario
+                    updateMetricsFromEvent(businessEvent);
                 }
             }
+        }
+        
+        function convertToBusinessEvent(rawEvent) {
+            console.log('🔄 Convirtiendo evento:', rawEvent);
+            
+            const eventName = rawEvent.event;
+            const channel = rawEvent.channel;
+            const eventData = JSON.parse(rawEvent.data || '{}');
+            
+            // Mapear eventos específicos
+            const eventMapping = {
+                'sucursal.creada': { entity: 'sucursales', action: 'created' },
+                'sucursal.actualizada': { entity: 'sucursales', action: 'updated' },
+                'sucursal.eliminada': { entity: 'sucursales', action: 'deleted' },
+                
+                'empleado.creado': { entity: 'empleados', action: 'created' },
+                'empleado.actualizado': { entity: 'empleados', action: 'updated' },
+                'empleado.eliminado': { entity: 'empleados', action: 'deleted' },
+                
+                'vehiculo.creado': { entity: 'vehiculos', action: 'created' },
+                'vehiculo.actualizado': { entity: 'vehiculos', action: 'updated' },
+                'vehiculo.eliminado': { entity: 'vehiculos', action: 'deleted' },
+                
+                'usuario.creado': { entity: 'usuarios', action: 'created' },
+                'usuario.actualizado': { entity: 'usuarios', action: 'updated' },
+                'usuario.eliminado': { entity: 'usuarios', action: 'deleted' },
+                
+                'rol.creado': { entity: 'roles', action: 'created' },
+                'rol.actualizado': { entity: 'roles', action: 'updated' },
+                'rol.eliminado': { entity: 'roles', action: 'deleted' },
+                
+                'vehiculo-sucursal.creado': { entity: 'vehiculo-sucursal', action: 'assigned' },
+                'vehiculo-sucursal.actualizado': { entity: 'vehiculo-sucursal', action: 'updated' },
+                'vehiculo-sucursal.eliminado': { entity: 'vehiculo-sucursal', action: 'deleted' },
+                
+                // Mapeos adicionales para el formato con guión bajo
+                'vehiculo_sucursal.creado': { entity: 'vehiculo-sucursal', action: 'assigned' },
+                'vehiculo_sucursal.actualizado': { entity: 'vehiculo-sucursal', action: 'updated' },
+                'vehiculo_sucursal.eliminado': { entity: 'vehiculo-sucursal', action: 'deleted' }
+            };
+            
+            const mapping = eventMapping[eventName];
+            if (!mapping) {
+                console.log('⚠️ Evento no mapeado:', eventName);
+                return null;
+            }
+            
+            // Crear evento en formato esperado por el dashboard
+            const businessEvent = {
+                event: eventName,
+                channel: channel,
+                data: {
+                    entity_type: mapping.entity,
+                    action: mapping.action,
+                    message: eventData.message || `${mapping.action} en ${mapping.entity}`,
+                    raw_data: eventData
+                }
+            };
+            
+            console.log('✅ Evento convertido:', businessEvent);
+            return businessEvent;
+        }
+        
+        function updateMetricsFromEvent(businessEvent) {
+            const entityType = businessEvent.data.entity_type;
+            const action = businessEvent.data.action;
+            
+            console.log(`📊 Actualizando métricas: ${entityType} - ${action}`);
+            
+            // Mapear entidades a métricas
+            const entityMetricMap = {
+                'empleados': 'empleados',
+                'vehiculos': 'vehiculos', 
+                'sucursales': 'sucursales',
+                'usuarios': 'usuarios',
+                'roles': 'roles',
+                'vehiculo-sucursal': 'asignaciones'
+            };
+            
+            const metricKey = entityMetricMap[entityType];
+            if (!metricKey) {
+                console.log('⚠️ Entidad no tiene métrica asociada:', entityType);
+                return;
+            }
+            
+            // Verificar si la métrica existe en metricsData
+            if (metricsData[metricKey] === undefined) {
+                console.log('⚠️ Métrica no encontrada en metricsData:', metricKey);
+                metricsData[metricKey] = 0; // Inicializar si no existe
+            }
+            
+            if (action === 'created' || action === 'assigned') {
+                metricsData[metricKey]++;
+                updateMetricCard(metricKey, metricsData[metricKey]);
+                console.log(`📈 ${metricKey} incrementado a:`, metricsData[metricKey]);
+            } else if (action === 'deleted') {
+                metricsData[metricKey] = Math.max(0, metricsData[metricKey] - 1);
+                updateMetricCard(metricKey, metricsData[metricKey]);
+                console.log(`📉 ${metricKey} decrementado a:`, metricsData[metricKey]);
+            } else if (action === 'updated') {
+                console.log(`🔄 ${metricKey} actualizado (contador sin cambios):`, metricsData[metricKey]);
+            }
+        }
+        
+        function getChannelDisplayName(channelName) {
+            const channelNames = {
+                'empleados': '👥 Empleados',
+                'roles': '🔐 Roles',
+                'usuarios': '👤 Usuarios',
+                'vehiculos': '🚗 Vehículos',
+                'sucursales': '🏢 Sucursales',
+                'vehiculo-sucursal': '🔗 Asignaciones Vehículo-Sucursal',
+                'dashboard': '📊 Dashboard'
+            };
+            return channelNames[channelName] || channelName;
         }
         
         function addActivityItem(eventData) {
@@ -1136,11 +1546,146 @@
             const data = eventData.data;
             const entityType = data.entity_type || 'sistema';
             const action = data.action || 'evento';
-            const message = data.message || 'Evento del sistema';
             const timestamp = new Date().toLocaleString();
             
+            // Verificación mejorada contra duplicados para entidades específicas
+            const recentItems = feed.querySelectorAll('.activity-item');
+            const currentTime = new Date();
+            
+            // Definir ventanas de tiempo específicas para cada tipo de entidad
+            const duplicateWindows = {
+                'sucursales': 3000,      // 3 segundos para sucursales
+                'empleados': 3000,       // 3 segundos para empleados  
+                'vehiculos': 3000,       // 3 segundos para vehículos
+                'vehiculo-sucursal': 5000,  // 5 segundos para asignaciones
+                'roles': 2000,           // 2 segundos para roles
+                'usuarios': 3000         // 3 segundos para usuarios
+            };
+            
+            const timeWindow = duplicateWindows[entityType] || 2000; // 2 segundos por defecto
+            
+            for (let i = 0; i < Math.min(10, recentItems.length); i++) {
+                const item = recentItems[i];
+                const existingTitle = item.querySelector('.activity-title')?.textContent?.trim();
+                const existingDescription = item.querySelector('.activity-description')?.textContent?.trim();
+                const existingTimeText = item.querySelector('.activity-time')?.textContent?.trim();
+                
+                try {
+                    // Parsear tiempo existente
+                    const existingTime = new Date(existingTimeText);
+                    const timeDiff = Math.abs(currentTime - existingTime);
+                    
+                    // Verificar si es el mismo tipo de entidad y acción en la ventana de tiempo
+                    const entityDisplayName = getEntityDisplayName(entityType);
+                    const actionDisplayName = getActionDisplayName(action);
+                    
+                    const isSameEntity = existingTitle && existingTitle.includes(entityDisplayName);
+                    const isSameAction = existingDescription && 
+                        (existingDescription.includes(actionDisplayName) || 
+                         existingDescription.includes(action));
+                    
+                    if (isSameEntity && isSameAction && timeDiff < timeWindow) {
+                        console.log(`🔄 Evento similar detectado para ${entityType} ${action} dentro de ${timeWindow}ms, ignorando duplicado`);
+                        activityCounter--; // Revertir contador
+                        return; // No agregar evento duplicado
+                    }
+                } catch (timeParseError) {
+                    // Si hay error parseando tiempo, continuar con verificación básica
+                    const timeDiff = 30000; // Asumir tiempo grande para evitar errores
+                    
+                    if (existingTitle && existingDescription && timeDiff < timeWindow) {
+                        const entityDisplayName = getEntityDisplayName(entityType);
+                        const actionDisplayName = getActionDisplayName(action);
+                        
+                        if (existingTitle.includes(entityDisplayName) && 
+                            existingDescription.includes(actionDisplayName)) {
+                            console.log(`🔄 Evento similar detectado (fallback), ignorando duplicado`);
+                            activityCounter--; // Revertir contador
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            // Personalizar mensaje según el evento
+            let message = data.message || 'Evento del sistema';
+            let title = '';
+            
+            console.log(`🎨 Creando actividad para: ${entityType} - ${action}`);
+            
+            // Mensajes específicos por entidad y acción
+            if (action === 'connected') {
+                title = `✅ ${getChannelDisplayName(entityType)}`;
+                message = `Canal conectado exitosamente`;
+            } else {
+                const entityDisplayName = getEntityDisplayName(entityType);
+                const actionDisplayName = getActionDisplayName(action);
+                const actionIcon = getActionIcon(action);
+                
+                title = `<i class="fas ${actionIcon} me-2"></i>${entityDisplayName} ${actionDisplayName}`;
+                
+                // Mensajes personalizados según la entidad y acción
+                switch(entityType) {
+                    case 'sucursales':
+                        if (action === 'created') {
+                            message = `Nueva sucursal creada exitosamente`;
+                        } else if (action === 'updated') {
+                            message = `Sucursal actualizada correctamente`;
+                        } else if (action === 'deleted') {
+                            message = `Sucursal eliminada del sistema`;
+                        }
+                        break;
+                    case 'empleados':
+                        if (action === 'created') {
+                            message = `Nuevo empleado registrado en el sistema`;
+                        } else if (action === 'updated') {
+                            message = `Información de empleado actualizada`;
+                        } else if (action === 'deleted') {
+                            message = `Empleado eliminado del sistema`;
+                        }
+                        break;
+                    case 'vehiculos':
+                        if (action === 'created') {
+                            message = `Nuevo vehículo agregado a la flota`;
+                        } else if (action === 'updated') {
+                            message = `Información de vehículo actualizada`;
+                        } else if (action === 'deleted') {
+                            message = `Vehículo eliminado de la flota`;
+                        }
+                        break;
+                    case 'usuarios':
+                        if (action === 'created') {
+                            message = `Nueva cuenta de usuario creada`;
+                        } else if (action === 'updated') {
+                            message = `Cuenta de usuario actualizada`;
+                        } else if (action === 'deleted') {
+                            message = `Usuario eliminado del sistema`;
+                        }
+                        break;
+                    case 'roles':
+                        if (action === 'created') {
+                            message = `Nuevo rol de sistema creado`;
+                        } else if (action === 'updated') {
+                            message = `Rol de sistema actualizado`;
+                        } else if (action === 'deleted') {
+                            message = `Rol eliminado del sistema`;
+                        }
+                        break;
+                    case 'vehiculo-sucursal':
+                        if (action === 'assigned' || action === 'created') {
+                            message = `Nueva asignación vehículo-sucursal realizada`;
+                        } else if (action === 'updated') {
+                            message = `Asignación vehículo-sucursal actualizada`;
+                        } else if (action === 'deleted') {
+                            message = `Asignación vehículo-sucursal eliminada`;
+                        }
+                        break;
+                    default:
+                        message = data.message || `${entityDisplayName} ${actionDisplayName}`;
+                }
+            }
+            
             const actionIcon = getActionIcon(action);
-            const entityIcon = getEntityIcon(entityType);
             
             const activityHtml = `
                 <div class="activity-item">
@@ -1149,8 +1694,7 @@
                     </div>
                     <div class="activity-content">
                         <div class="activity-title">
-                            <i class="fas ${entityIcon} me-1"></i>
-                            ${formatEntityType(entityType)} ${formatAction(action)}
+                            ${title}
                         </div>
                         <div class="activity-description">${message}</div>
                         <div class="activity-time">${timestamp}</div>
@@ -1165,50 +1709,67 @@
             if (items.length > 50) {
                 items[items.length - 1].remove();
             }
+            
+            console.log(`✅ Actividad añadida: ${entityType} ${action}`);
+        }
+        
+        function getEntityDisplayName(entityType) {
+            const entityNames = {
+                'empleado': 'Empleado',
+                'empleados': 'Empleados',
+                'vehiculo': 'Vehículo',
+                'vehiculos': 'Vehículos', 
+                'sucursal': 'Sucursal',
+                'sucursales': 'Sucursales',
+                'usuario': 'Usuario',
+                'usuarios': 'Usuarios',
+                'rol': 'Rol',
+                'roles': 'Roles',
+                'vehiculo_sucursal': 'Asignación',
+                'vehiculo-sucursal': 'Asignación'
+            };
+            return entityNames[entityType] || 'Elemento';
+        }
+        
+        function getActionDisplayName(action) {
+            const actions = {
+                'created': 'creado',
+                'updated': 'actualizado',
+                'deleted': 'eliminado',
+                'assigned': 'asignado',
+                'connected': 'conectado'
+            };
+            return actions[action] || 'modificado';
         }
         
         function getActionIcon(action) {
             const icons = {
-                'created': 'fa-plus',
+                'created': 'fa-plus-circle',
                 'updated': 'fa-edit',
-                'deleted': 'fa-trash',
-                'assigned': 'fa-link'
+                'deleted': 'fa-trash-alt',
+                'assigned': 'fa-link',
+                'connected': 'fa-plug'
             };
-            return icons[action] || 'fa-info';
+            return icons[action] || 'fa-info-circle';
         }
         
         function getEntityIcon(entityType) {
             const icons = {
                 'empleado': 'fa-user',
+                'empleados': 'fa-users',
                 'vehiculo': 'fa-car',
+                'vehiculos': 'fa-car',
                 'sucursal': 'fa-building',
+                'sucursales': 'fa-building',
                 'usuario': 'fa-user-shield',
+                'usuarios': 'fa-user-shield',
                 'rol': 'fa-key',
-                'vehiculo_sucursal': 'fa-route'
+                'roles': 'fa-key',
+                'vehiculo_sucursal': 'fa-route',
+                'vehiculo-sucursal': 'fa-route',
+                'dashboard': 'fa-tachometer-alt'
             };
             return icons[entityType] || 'fa-circle';
-        }
-        
-        function formatEntityType(type) {
-            const types = {
-                'empleado': 'Empleado',
-                'vehiculo': 'Vehículo',
-                'sucursal': 'Sucursal',
-                'usuario': 'Usuario',
-                'rol': 'Rol',
-                'vehiculo_sucursal': 'Asignación'
-            };
-            return types[type] || 'Elemento';
-        }
-        
-        function formatAction(action) {
-            const actions = {
-                'created': 'creado',
-                'updated': 'actualizado',
-                'deleted': 'eliminado',
-                'assigned': 'asignado'
-            };
-            return actions[action] || 'modificado';
         }
         
         // ===== GRÁFICOS =====
@@ -1329,6 +1890,18 @@
                 </div>
             `;
             activityCounter = 0;
+            
+            // También limpiar historial de deduplicación
+            processedEvents.clear();
+            eventBuffer = [];
+            console.log('🧹 Historial de actividad y deduplicación limpiado');
+        }
+        
+        function showDeduplicationStats() {
+            console.log('📊 Estadísticas de Deduplicación:');
+            console.log(`- Eventos únicos procesados: ${processedEvents.size}`);
+            console.log(`- Eventos en buffer: ${eventBuffer.length}`);
+            console.log(`- Total actividades mostradas: ${activityCounter}`);
         }
         
         function exportActivityLog() {

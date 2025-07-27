@@ -92,55 +92,55 @@
 
             <!-- Empleados TERCERO -->
             <h3>👥 Empleados (Crear Tercero)</h3>
-            <input type="text" id="empleado_nombre" placeholder="Nombre" value="Juan Pérez">
+            <input type="text" id="empleado_nombre" placeholder="Nombre" value="Sofía María">
             <input type="text" id="empleado_cargo" placeholder="Cargo" value="Administrador">
-            <input type="text" id="empleado_correo" placeholder="Correo" value="juan@ejemplo.com">
-            <input type="text" id="empleado_telefono" placeholder="Teléfono" value="123456789">
+            <input type="text" id="empleado_correo" placeholder="Correo" value="sofía.administrador381@empresa.com">
+            <input type="text" id="empleado_telefono" placeholder="Teléfono" value="900000381">
             <button onclick="generateEmpleadoData()">🎲 Generar Datos</button>
             <button onclick="createEmpleado()">Crear Empleado</button>
-            <input type="number" id="empleado_update_id" placeholder="Empleado ID" value="12">
+            <input type="number" id="empleado_update_id" placeholder="Empleado ID" value="22">
             <button onclick="updateEmpleado()">Actualizar Empleado</button>
-            <input type="number" id="empleado_delete_id" placeholder="Empleado ID" value="12">
+            <input type="number" id="empleado_delete_id" placeholder="Empleado ID" value="22">
             <button onclick="deleteEmpleado()">Eliminar Empleado</button>
 
             <!-- Usuarios CUARTO -->
             <h3>� Usuarios (Crear Cuarto)</h3>
-            <input type="text" id="username" placeholder="Username" value="">
+            <input type="text" id="username" placeholder="Username" value="user_1753653827808_390">
             <input type="text" id="password" placeholder="Password" value="password123">
-            <input type="number" id="empleado_id" placeholder="Empleado ID" value="12">
-            <input type="number" id="rol_id" placeholder="Rol ID" value="1">
+            <input type="number" id="empleado_id" placeholder="Empleado ID" value="22">
+            <input type="number" id="rol_id" placeholder="Rol ID" value="24">
             <button onclick="generateUniqueUsername()">🎲 Generar Username</button>
             <button onclick="createUser()">Crear Usuario</button>
-            <input type="number" id="user_id" placeholder="User ID" value="1">
+            <input type="number" id="user_id" placeholder="User ID" value="11">
             <input type="text" id="new_username" placeholder="Nuevo Username" value="usuario_actualizado">
             <button onclick="updateUser()">Actualizar Usuario</button>
-            <input type="number" id="delete_user_id" placeholder="User ID para eliminar" value="1">
+            <input type="number" id="delete_user_id" placeholder="User ID para eliminar" value="11">
             <button onclick="deleteUser()">Eliminar Usuario</button>
 
             <!-- Vehículos QUINTO -->
             <h3>🚗 Vehículos (Crear Quinto)</h3>
-            <input type="text" id="vehiculo_marca" placeholder="Marca" value="Toyota">
-            <input type="text" id="vehiculo_modelo" placeholder="Modelo" value="Corolla">
-            <input type="number" id="vehiculo_año" placeholder="Año" value="2023">
-            <input type="text" id="vehiculo_patente" placeholder="Placa (no Patente)" value="ABC123">
+            <input type="text" id="vehiculo_marca" placeholder="Marca" value="Ford">
+            <input type="text" id="vehiculo_modelo" placeholder="Modelo" value="Cruze">
+            <input type="number" id="vehiculo_año" placeholder="Año" value="2020">
+            <input type="text" id="vehiculo_patente" placeholder="Placa (no Patente)" value="DXX789">
             <small style="color: #666;">💡 Nota: Campos disponibles: marca, modelo, anio, placa, tipo_id, estado</small>
             <button onclick="generateVehiculoData()">🎲 Generar Datos</button>
             <button onclick="createVehiculo()">Crear Vehículo</button>
-            <input type="number" id="vehiculo_update_id" placeholder="Vehículo ID" value="1">
+            <input type="number" id="vehiculo_update_id" placeholder="Vehículo ID" value="19">
             <button onclick="updateVehiculo()">Actualizar Vehículo</button>
-            <input type="number" id="vehiculo_delete_id" placeholder="Vehículo ID" value="1">
+            <input type="number" id="vehiculo_delete_id" placeholder="Vehículo ID" value="19">
             <button onclick="deleteVehiculo()">Eliminar Vehículo</button>
 
             <!-- Vehículo-Sucursal SEXTO -->
             <h3>🔗 Asignación Vehículo-Sucursal (Crear Sexto)</h3>
-            <input type="number" id="vs_vehiculo_id" placeholder="Vehículo ID" value="1">
-            <input type="number" id="vs_sucursal_id" placeholder="Sucursal ID" value="17">
+            <input type="number" id="vs_vehiculo_id" placeholder="Vehículo ID" value="19">
+            <input type="number" id="vs_sucursal_id" placeholder="Sucursal ID" value="42">
             <input type="date" id="vs_fecha_asignacion" placeholder="Fecha Asignación" value="">
             <button onclick="generateVSData()">🎲 Generar Datos</button>
             <button onclick="createVehiculoSucursal()">Asignar Vehículo</button>
-            <input type="number" id="vs_update_id" placeholder="Asignación ID" value="1">
+            <input type="number" id="vs_update_id" placeholder="Asignación ID" value="26">
             <button onclick="updateVehiculoSucursal()">Actualizar Asignación</button>
-            <input type="number" id="vs_delete_id" placeholder="Asignación ID" value="1">
+            <input type="number" id="vs_delete_id" placeholder="Asignación ID" value="26">
             <button onclick="deleteVehiculoSucursal()">Eliminar Asignación</button>
         </div>
 
@@ -670,8 +670,9 @@
         async function updateEmpleado() {
             const id = document.getElementById('empleado_update_id').value;
             const nombre = document.getElementById('empleado_nombre').value;
-            const apellido = document.getElementById('empleado_apellido').value;
-            const email = document.getElementById('empleado_email').value;
+            const cargo = document.getElementById('empleado_cargo').value;
+            const correo = document.getElementById('empleado_correo').value;
+            const telefono = document.getElementById('empleado_telefono').value;
 
             if (!id) {
                 logEvent(`❌ Error: Primero crea un empleado para obtener un ID válido`, 'error');
@@ -683,8 +684,9 @@
                     actualizarEmpleado(id_empleado: $id, input: $input) {
                         id_empleado
                         nombre
-                        apellido
-                        email
+                        cargo
+                        correo
+                        telefono
                         updated_at
                     }
                 }
@@ -694,11 +696,9 @@
                 id: id,
                 input: {
                     nombre: nombre + "_actualizado",
-                    apellido: apellido,
-                    email: email,
-                    telefono: "123456789",
-                    fecha_ingreso: "2024-01-01",
-                    sucursal_id: lastCreatedSucursalId || 1
+                    cargo: cargo + "_modificado",
+                    correo: correo.replace('@', '_actualizado@'),
+                    telefono: telefono || "999888777"
                 }
             };
 
@@ -1287,6 +1287,22 @@
             const sucursal_id = parseInt(document.getElementById('vs_sucursal_id').value);
             const fecha_asignacion = document.getElementById('vs_fecha_asignacion').value;
 
+            // Validar que los campos requeridos no estén vacíos
+            if (!vehiculo_id || isNaN(vehiculo_id)) {
+                logEvent(`❌ Error: ID de vehículo inválido`, 'error');
+                return;
+            }
+            
+            if (!sucursal_id || isNaN(sucursal_id)) {
+                logEvent(`❌ Error: ID de sucursal inválido`, 'error');
+                return;
+            }
+            
+            if (!fecha_asignacion) {
+                logEvent(`❌ Error: Fecha de asignación es requerida`, 'error');
+                return;
+            }
+
             const mutation = `
                 mutation CrearVehiculoSucursal($input: VehiculoSucursalInput!) {
                     crearVehiculoSucursal(input: $input) {
@@ -1301,14 +1317,15 @@
 
             const variables = {
                 input: { 
-                    id_vehiculo: vehiculo_id || lastCreatedVehiculoId || 1, 
-                    id_sucursal: sucursal_id || lastCreatedSucursalId || 1, 
-                    fecha_asignacion 
+                    id_vehiculo: vehiculo_id, 
+                    id_sucursal: sucursal_id, 
+                    fecha_asignacion: fecha_asignacion
                 }
             };
 
             try {
                 logEvent(`🚀 Enviando GraphQL mutation: crearVehiculoSucursal`, 'info');
+                logEvent(`📝 Variables: ${JSON.stringify(variables)}`, 'info');
                 
                 const response = await fetch('http://127.0.0.1:8000/graphql', {
                     method: 'POST',
@@ -1325,7 +1342,7 @@
                     logEvent(`❌ Error GraphQL: ${JSON.stringify(result.errors)}`, 'error');
                 } else {
                     const vsData = result.data.crearVehiculoSucursal;
-                    lastCreatedVSId = vsData.id_vehiculo_sucursal;
+                    lastCreatedVSId = vsData.id;
                     
                     document.getElementById('vs_update_id').value = lastCreatedVSId;
                     document.getElementById('vs_delete_id').value = lastCreatedVSId;
@@ -1351,10 +1368,10 @@
 
             const mutation = `
                 mutation ActualizarVehiculoSucursal($id: ID!, $input: VehiculoSucursalInput!) {
-                    actualizarVehiculoSucursal(id_vehiculo_sucursal: $id, input: $input) {
-                        id_vehiculo_sucursal
-                        vehiculo_id
-                        sucursal_id
+                    actualizarVehiculoSucursal(id: $id, input: $input) {
+                        id
+                        id_vehiculo
+                        id_sucursal
                         fecha_asignacion
                         updated_at
                     }
@@ -1364,8 +1381,8 @@
             const variables = {
                 id: id,
                 input: {
-                    vehiculo_id: vehiculo_id || lastCreatedVehiculoId || 1,
-                    sucursal_id: sucursal_id || lastCreatedSucursalId || 1,
+                    id_vehiculo: vehiculo_id || lastCreatedVehiculoId || 1,
+                    id_sucursal: sucursal_id || lastCreatedSucursalId || 1,
                     fecha_asignacion: new Date().toISOString().split('T')[0] // Fecha actual
                 }
             };
@@ -1406,7 +1423,7 @@
 
             const mutation = `
                 mutation EliminarVehiculoSucursal($id: ID!) {
-                    eliminarVehiculoSucursal(id_vehiculo_sucursal: $id) {
+                    eliminarVehiculoSucursal(id: $id) {
                         success
                         message
                     }
@@ -1513,7 +1530,7 @@
             document.getElementById('empleado_correo').value = correo;
             document.getElementById('empleado_telefono').value = telefono;
             
-            logEvent(`🎲 Datos de empleado generados: ${nombre} ${apellido}`, 'info');
+            logEvent(`🎲 Datos de empleado generados: ${nombre}`, 'info');
         }
 
         function generateRolData() {
@@ -1533,11 +1550,9 @@
             const randomNum = Math.floor(Math.random() * 1000);
             const marcas = ['Toyota', 'Ford', 'Chevrolet', 'Nissan', 'Honda', 'Volkswagen', 'Hyundai'];
             const modelos = ['Corolla', 'Focus', 'Cruze', 'Sentra', 'Civic', 'Jetta', 'Elantra'];
-            const colores = ['Blanco', 'Negro', 'Gris', 'Azul', 'Rojo', 'Plata'];
             
             const marca = marcas[Math.floor(Math.random() * marcas.length)];
             const modelo = modelos[Math.floor(Math.random() * modelos.length)];
-            const color = colores[Math.floor(Math.random() * colores.length)];
             const año = 2020 + Math.floor(Math.random() * 5);
             const patente = `${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${randomNum.toString().slice(-3)}`;
             
@@ -1545,7 +1560,6 @@
             document.getElementById('vehiculo_modelo').value = modelo;
             document.getElementById('vehiculo_año').value = año;
             document.getElementById('vehiculo_patente').value = patente;
-            document.getElementById('vehiculo_color').value = color;
             
             logEvent(`🎲 Datos de vehículo generados: ${marca} ${modelo} ${patente}`, 'info');
         }
@@ -1570,8 +1584,22 @@
 
         function generateVSData() {
             const fechaAsignacion = new Date().toISOString().split('T')[0];
+            
+            // Generar IDs aleatorios para vehículo y sucursal si están vacíos
+            const vehiculoIdField = document.getElementById('vs_vehiculo_id');
+            const sucursalIdField = document.getElementById('vs_sucursal_id');
+            
+            if (!vehiculoIdField.value || vehiculoIdField.value === '') {
+                vehiculoIdField.value = lastCreatedVehiculoId || Math.floor(Math.random() * 50) + 1;
+            }
+            
+            if (!sucursalIdField.value || sucursalIdField.value === '') {
+                sucursalIdField.value = lastCreatedSucursalId || Math.floor(Math.random() * 50) + 1;
+            }
+            
             document.getElementById('vs_fecha_asignacion').value = fechaAsignacion;
-            logEvent(`🎲 Fecha de asignación generada: ${fechaAsignacion}`, 'info');
+            
+            logEvent(`🎲 Datos de asignación generados - Vehículo: ${vehiculoIdField.value}, Sucursal: ${sucursalIdField.value}, Fecha: ${fechaAsignacion}`, 'info');
         }
 
         function updateConnectionStatus(status, className) {
